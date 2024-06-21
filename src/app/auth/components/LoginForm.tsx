@@ -18,9 +18,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useTransition } from "react";
 import { loginAction } from "@/actions/auth/login.action";
+import { ButtonForm } from "@/components/form/ButtonForm";
 
 export const LoginForm = () => {
 
@@ -83,9 +83,7 @@ export const LoginForm = () => {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isPending}>
-              Iniciar sesión
-            </Button>
+            <ButtonForm isDisabled={isPending} title="Iniciar sesión" type="submit" />
           </form>
         </Form>
       </CardContent>
