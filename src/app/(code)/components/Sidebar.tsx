@@ -31,22 +31,22 @@ const menuItems = [
     icon: <IoShieldOutline className={`text-green-600 ${className}`} />,
   },
   {
-    path: "/codeRed",
+    path: "/code-red",
     title: "Código Rojo",
     icon: <FaFire className={`text-red-600 ${className}`} />,
   },
   {
-    path: "/codeAir",
+    path: "/code-air",
     title: "Código Aéreo",
     icon: <FaHelicopter className={`text-cyan-600 ${className}`} />,
   },
   {
-    path: "/codeLeak",
+    path: "/code-leak",
     title: "Código Fuga",
     icon: <FaRunning className={`text-yellow-600 ${className}`} />,
   },
   {
-    path: "/fireAlarms",
+    path: "/fire-alarms",
     title: "Alarmas de Incendio",
     icon: <GiMovementSensor className={`text-indigo-600 ${className}`} />,
   },
