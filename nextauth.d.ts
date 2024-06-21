@@ -1,5 +1,12 @@
 import NextAuth from 'next-auth/next';
 import { JWT } from 'next-auth/jwt';
+import { DefaultSession } from "next-auth";
+
+declare module "next-auth" {
+  interface Session {
+    user: User & DefaultSession["user"];
+  }
+}
 
 declare module 'next-auth' {
     interface Session {
@@ -27,4 +34,5 @@ export interface User {
   updatedAt: Date;
   role:      string;
   isActive:  boolean;
+  emailVerified: null;
 }

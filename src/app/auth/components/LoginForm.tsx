@@ -21,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useTransition } from "react";
 import { loginAction } from "@/actions/auth/login.action";
-import { signIn } from "next-auth/react";
 
 export const LoginForm = () => {
 
@@ -37,12 +36,9 @@ export const LoginForm = () => {
 
   const onSubmit = (values: LoginValues) => {
     startTransition(async () => {
-      const formData = new FormData();
-      formData.append("email", values.email);
-      formData.append("password", values.password);
-      const resp = await signIn("credentials", {
-        email: formData.get("email"),
-        password: formData.get("password"),
+      const resp = await loginAction({
+        email: values.email,
+        password: values.password,
       });
     });
   };
