@@ -19,35 +19,38 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CodeGreenSchema, CodeGreenValues } from "@/schema/CodeShema";
+import {
+  CodeBlueSchema,
+  CodeBlueValues,
+  Team,
+} from "@/schema/CodeShema";
 import { DatePicker } from "@/components/form/DatePicker";
 import { SelectOperator } from "@/components/form/SelectOperator";
 import { useTransition } from "react";
-import { createCodeGreen } from "@/actions/codeGreen/createCodeGreen";
 import { ButtonForm } from "@/components/form/ButtonForm";
+import { createCodeBlue } from "@/actions/codeBlue/createCodeBlue";
 
-export const CodeGreenForm = () => {
+export const CodeBlueForm = () => {
   const [isPending, startTransition] = useTransition();
-  const form = useForm<CodeGreenValues>({
-    resolver: zodResolver(CodeGreenSchema),
+  const form = useForm<CodeBlueValues>({
+    resolver: zodResolver(CodeBlueSchema),
     defaultValues: {
       createdAt: new Date(),
-      police: false,
+      team: undefined,
       activeBy: "",
       operatorId: "",
       location: "",
-      event: "",
     },
   });
 
-  const onSubmit = async (data: CodeGreenValues) => {
+  const onSubmit = async (data: CodeBlueValues) => {
     startTransition(async () => {
       try {
-        await createCodeGreen(data);
-        toast.success("Event created successfully");
+        await createCodeBlue(data);
+        toast.success("Código azul creado correctamente");
         form.reset();
       } catch (error) {
-        toast.error("Error al crear el código verde");
+        toast.error("Error al crear código azul");
       }
     });
   };
@@ -69,16 +72,18 @@ export const CodeGreenForm = () => {
             )}
           />
 
-          {/* Carabineros */}
+          {/* Equipo */}
           <FormField
             control={form.control}
-            name="police"
+            name="team"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Carabineros</FormLabel>
+                <FormLabel>
+                  Equipo
+                </FormLabel>
                 <Select
-                  value={field.value ? "1" : "0"}
-                  onValueChange={(value) => field.onChange(+value)}
+                  value={field.value || ""}
+                  onValueChange={(value) => field.onChange(value)}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -86,8 +91,13 @@ export const CodeGreenForm = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="1">Sí</SelectItem>
-                    <SelectItem value="0">No</SelectItem>
+                    {
+                      Object.entries(Team).map(([key, value]) => (
+                        <SelectItem key={key} value={value}>
+                          {value}
+                        </SelectItem>
+                      ))
+                    }
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -139,22 +149,11 @@ export const CodeGreenForm = () => {
           )}
         />
 
-        {/* Evento */}
-        <FormField
-          control={form.control}
-          name="event"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Evento</FormLabel>
-              <FormControl>
-                <Textarea className="resize-none" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        <ButtonForm
+          isDisabled={isPending}
+          title="Crear"
+          type="submit"
         />
-
-        <ButtonForm isDisabled={isPending} title="Crear" type="submit" />
       </form>
     </Form>
   );

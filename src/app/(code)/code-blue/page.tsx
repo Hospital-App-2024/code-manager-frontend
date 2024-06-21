@@ -1,9 +1,9 @@
 import { Suspense } from "react";
-import { CodeGreenForm } from "../components/form/CodeGreenForm";
 import { Modal } from "../components/modal/Modal";
-import CodeGreenTable from "../components/table/CodeGreenTable";
 import TableSkeleton from "@/components/skeleton/TableSkeleton";
 import PdfDownloader from "../components/download/PdfDownloader";
+import { CodeBlueForm } from "../components/form/CodeBlueForm";
+import CodeBlueTable from "../components/table/CodeBlueTable";
 
 interface Props {
   searchParams: {
@@ -26,11 +26,11 @@ export default function CodeBluePage({ searchParams }: Props) {
           title="Crear código azul"
           subtitle="Complete el formulario para crear un código azul"
         >
-          <CodeGreenForm />
+          <CodeBlueForm />
         </Modal>
       </div>
       <Suspense fallback={<TableSkeleton />}>
-        <CodeGreenTable limit={limit} page={page} />
+        <CodeBlueTable limit={limit} page={page} />
       </Suspense>
     </div>
   );
