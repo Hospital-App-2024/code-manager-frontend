@@ -3,6 +3,7 @@ import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { getServerSession } from "next-auth";
 import SessionProvider from "@/providers/SessionProviders";
+import { Toaster } from "@/components/ui/sonner"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -27,6 +28,7 @@ export default async function RootLayout({
       <body className={fontSans.className}>
         <SessionProvider session={session}>
           { children }
+          <Toaster richColors position="top-center"/>
         </SessionProvider>
       </body>
     </html>

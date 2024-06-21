@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { Sidebar } from "./components/Sidebar";
-import { QueryClientProvider } from "@/providers/QueryClientProvieder";
 
 export default async function CodeLayout({
   children,
@@ -15,13 +14,11 @@ export default async function CodeLayout({
   }
 
   return (
-    <QueryClientProvider>
       <div className="h-screen flex">
         <Sidebar />
         <main className="bg-gray-100 w-full overflow-y-auto">
         {children}
         </main>
       </div>
-    </QueryClientProvider>
   );
 }

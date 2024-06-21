@@ -1,35 +1,45 @@
-"use client"
-import { DataTable } from "@/components/table/data-table";
-import { columns } from '../../codeGreen/columns';
-import { useCodeGreen } from "@/hooks/useCodeGreen";
-import { useState } from "react";
-import { PaginationState } from "@tanstack/react-table";
-import { DateRange } from "react-day-picker";
-import { addDays } from "date-fns";
+import { getCodeGreen } from "@/actions/codeGreen/getCodeGreen";
+import { MainTable } from "@/components/table/MainTable";
+import { Pagination } from "@/components/table/TablePagination";
+import { TableCell, TableRow } from "@/components/ui/table";
 
+const columns = [
+  "Fecha/hora",
+  "Operador",
+  "Activo por",
+  "Carabineros",
+  "Ubicación",
+  "Evento",
+];
 
-export const CodeGreenTable = () => {
+interface Props {
+  limit: number;
+  page: number;
+}
 
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 5,
-  });
-
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
-
-  const { data, isLoading } = useCodeGreen(pagination);
+export default async function CodeGreenTable({ limit, page }: Props) {
+  const { data, meta } = await getCodeGreen({ limit, page });
 
   return (
-    <DataTable 
-      columns={columns}
-      data={data?.rows ?? []}
-      isLoading={isLoading}
-      pagination={pagination}
-      onPaginationChange={setPagination}
-      totalRows={data?.rowCount ?? 0}
-    />
-  )
+    <div>
+      <MainTable totalPages={meta.lastPage ?? 0} columns={columns}>
+        {data.map((item, index) => (
+          <TableRow key={index}>
+            <TableCell>{`${item.createdAt}`}</TableCell>
+            <TableCell>{item.operator}</TableCell>
+            <TableCell>{item.activeBy}</TableCell>
+            <TableCell>{item.police}</TableCell>
+            <TableCell>{item.location}</TableCell>
+            <TableCell>{item.event}</TableCell>
+          </TableRow>
+        ))}
+      </MainTable>
+      <Pagination
+        currentPage={meta.page}
+        nextPage={meta.nextPage}
+        prevPage={meta.prevPage}
+        totalPages={meta.lastPage}
+      />
+    </div>
+  );
 }
