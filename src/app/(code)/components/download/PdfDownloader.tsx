@@ -1,10 +1,14 @@
 import { FaRegFilePdf } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 
-export default function CodeGreenPdfDownloader() {
+interface Props {
+  url: string;
+}
+
+export default function PdfDownloader({ url }: Props) {
   return (
     <Button size="icon" asChild>
-        <a href={`${process.env.URL_BACKEND}/code-green/report`} target="_blank">
+        <a href={`${process.env.URL_BACKEND}${url}`} target="_blank">
             <FaRegFilePdf size={20} />
         </a>
     </Button>

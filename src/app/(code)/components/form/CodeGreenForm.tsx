@@ -34,6 +34,9 @@ export const CodeGreenForm = () => {
       createdAt: new Date(),
       police: false,
       activeBy: "",
+      operatorId: "",
+      location: "",
+      event: "",
     },
   });
 
@@ -41,7 +44,8 @@ export const CodeGreenForm = () => {
     startTransition(async () => {
       try {
         await createCodeGreen(data);
-        toast.success('Event created successfully')
+        toast.success('Event created successfully');
+        form.reset();
       } catch (error) {
         toast.error('Error al crear el código verde')
       }

@@ -12,7 +12,7 @@ interface Props {
   };
 }
 
-export default function CodeGreenPage({ searchParams }: Props) {
+export default function CodeBluePage({ searchParams }: Props) {
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 
@@ -20,11 +20,11 @@ export default function CodeGreenPage({ searchParams }: Props) {
     <div className="container mt-10 space-y-3">
       <div className="flex gap-2 mb-2">
         <PdfDownloader
-          url="/code-green/report"
+          url="/code-blue/report"
         />
         <Modal
-          title="Crear Código Verde"
-          subtitle="Complete el formulario para crear un código verde"
+          title="Crear código azul"
+          subtitle="Complete el formulario para crear un código azul"
         >
           <CodeGreenForm />
         </Modal>
