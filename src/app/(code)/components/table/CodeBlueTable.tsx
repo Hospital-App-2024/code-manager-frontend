@@ -1,11 +1,12 @@
-import { getCodeBlue } from "@/actions/codeBlue/getCodeBlue";
+import { getCodeRed } from "@/actions/codeRed/getCodeRed";
 import { MainTable } from "@/components/table/MainTable";
 import { Pagination } from "@/components/table/TablePagination";
 import { TableCell, TableRow } from "@/components/ui/table";
 
 const columns = [
-  "Fecha/hora",
-  "Equipo",
+  "Fecha/Hora",
+  "Hora llamada bomberos",
+  "Comunicación con COGRID",
   "Ubicación",
   "Activo por",
   "Operador",
@@ -17,15 +18,16 @@ interface Props {
 }
 
 export default async function CodeBlueTable({ limit, page }: Props) {
-  const { data, meta } = await getCodeBlue({ limit, page });
+  const { data, meta } = await getCodeRed({ limit, page });
 
   return (
     <div>
-      <MainTable totalPages={meta.lastPage ?? 0} columns={columns}>
+      <MainTable totalPages={meta.totalPages} columns={columns}>
         {data.map((item, index) => (
           <TableRow key={index}>
             <TableCell>{`${item.createdAt}`}</TableCell>
-            <TableCell>{item.team}</TableCell>
+            <TableCell>{`${item.firefighterCalledTime}`}</TableCell>
+            <TableCell>{item.COGRID}</TableCell>
             <TableCell>{item.location}</TableCell>
             <TableCell>{item.activeBy}</TableCell>
             <TableCell>{item.operator}</TableCell>
@@ -33,10 +35,10 @@ export default async function CodeBlueTable({ limit, page }: Props) {
         ))}
       </MainTable>
       <Pagination
-        currentPage={meta.page}
+        currentPage={meta.currentPage}
         nextPage={meta.nextPage}
         prevPage={meta.prevPage}
-        totalPages={meta.lastPage}
+        totalPages={meta.totalPages}
       />
     </div>
   );

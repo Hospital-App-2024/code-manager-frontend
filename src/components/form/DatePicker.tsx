@@ -10,14 +10,20 @@ import { format } from "date-fns";
 interface Props {
   name: string;
   value: Date;
+  title?: string;
   onChange: (value: Date) => void;
 }
 
-export const DatePicker = ({ name, onChange, value }: Props) => {
-  const formattedValue = format(value, "yyyy-MM-dd'T'HH:mm");
+export const DatePicker = ({
+  name,
+  onChange,
+  value,
+  title = "Fecha y hora",
+}: Props) => {
+  const formattedValue = value ? format(value, "yyyy-MM-dd'T'HH:mm") : "";
   return (
     <FormItem>
-      <FormLabel>Fecha y hora</FormLabel>
+      <FormLabel>{title}</FormLabel>
       <FormControl>
         <Input
           value={formattedValue}

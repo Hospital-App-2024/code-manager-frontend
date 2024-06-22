@@ -53,3 +53,27 @@ export const CodeBlueSchema = z.object({
 });
 
 export interface CodeBlueValues extends z.infer<typeof CodeBlueSchema> {}
+
+export const CodeRedSchema = z.object({
+  createdAt: z.date({
+    required_error: "Seleccione una fecha y hora",
+  }),
+  activeBy: z.string().min(3, {
+    message: "Mínimo 3 caracteres",
+  }),
+  operatorId: z.string().min(4, {
+    message: "Seleccione un operador",
+  }),
+  location: z.string().min(3, {
+    message: "Mínimo 3 caracteres",
+  }),
+  COGRID: z.coerce.boolean({
+    required_error: "Seleccione si hubo comunicación con COGRID",
+    invalid_type_error: "Seleccione si hubo comunicación con COGRID",
+  }),
+  firefighterCalledTime: z.date({
+    required_error: "Seleccione la hora en que se llamó al bombero",
+  }),
+});
+
+export interface CodeRedValues extends z.infer<typeof CodeRedSchema> {}
