@@ -22,7 +22,7 @@ export default async function CodeGreenTable({ limit, page }: Props) {
 
   return (
     <div>
-      <MainTable totalPages={meta.lastPage ?? 0} columns={columns}>
+      <MainTable totalPages={meta.totalPages} columns={columns}>
         {data.map((item, index) => (
           <TableRow key={index}>
             <TableCell>{`${item.createdAt}`}</TableCell>
@@ -35,10 +35,10 @@ export default async function CodeGreenTable({ limit, page }: Props) {
         ))}
       </MainTable>
       <Pagination
-        currentPage={meta.page}
+        currentPage={meta.currentPage}
         nextPage={meta.nextPage}
         prevPage={meta.prevPage}
-        totalPages={meta.lastPage}
+        totalPages={meta.totalPages}
       />
     </div>
   );

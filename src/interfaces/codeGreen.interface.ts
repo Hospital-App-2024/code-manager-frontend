@@ -1,21 +1,21 @@
 export interface ResponseCodeGreen {
-    data: CodeGreen[];
-    meta: Meta;
+  data: CodeGreen[];
+  meta: Meta;
 }
+
 export interface CodeGreen {
-  id: string;
   activeBy: string;
-  createdAt: Date;
-  location: string;
+  createdAt: string;
   event: string;
+  id: string;
+  location: string;
   operator: string;
-  police: boolean;
+  police: string;
 }
 
 export interface Meta {
-    total:    number;
-    page:     number;
-    lastPage: number;
-    nextPage: null;
-    prevPage: null;
+  totalPages: number;
+  currentPage: number;
+  nextPage: null;
+  prevPage: null;
 }
