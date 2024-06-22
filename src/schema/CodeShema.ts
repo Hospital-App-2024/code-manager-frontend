@@ -99,3 +99,23 @@ export const CodeAirSchema = z.object({
 });
 
 export interface CodeAirValues extends z.infer<typeof CodeAirSchema> {}
+
+export const codeLeakSchema = z.object({
+  createdAt: z.date({
+    required_error: "Seleccione una fecha y hora",
+  }),
+  activeBy: z.string().min(3, {
+    message: "Mínimo 3 caracteres",
+  }),
+  operatorId: z.string().min(4, {
+    message: "Seleccione un operador",
+  }),
+  location: z.string().min(3, {
+    message: "Mínimo 3 caracteres",
+  }),
+  patientDescription: z.string().min(3, {
+    message: "Mínimo 3 caracteres",
+  }),
+});
+
+export interface CodeLeakValues extends z.infer<typeof codeLeakSchema> {}
