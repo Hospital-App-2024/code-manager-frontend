@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import { Modal } from "../components/modal/Modal";
 import TableSkeleton from "@/components/skeleton/TableSkeleton";
 import PdfDownloader from "../components/download/PdfDownloader";
-import CodeBlueTable from "../components/table/CodeBlueTable";
 import { CodeRedForm } from "../components/form/CodeRedForm";
+import CodeRedTable from "../components/table/CodeRedTable";
 
 interface Props {
   searchParams: {
@@ -28,7 +28,7 @@ export default function CodeRedPage({ searchParams }: Props) {
         </Modal>
       </div>
       <Suspense fallback={<TableSkeleton />}>
-        <CodeBlueTable limit={limit} page={page} />
+        <CodeRedTable limit={limit} page={page} />
       </Suspense>
     </div>
   );

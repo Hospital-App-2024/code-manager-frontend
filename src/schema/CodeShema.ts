@@ -71,9 +71,11 @@ export const CodeRedSchema = z.object({
     required_error: "Seleccione si hubo comunicación con COGRID",
     invalid_type_error: "Seleccione si hubo comunicación con COGRID",
   }),
-  firefighterCalledTime: z.date({
-    required_error: "Seleccione la hora en que se llamó al bombero",
-  }),
+  firefighterCalledTime: z
+    .date({
+      required_error: "Seleccione la hora en que se llamó al bombero",
+    })
+    .optional(),
 });
 
 export interface CodeRedValues extends z.infer<typeof CodeRedSchema> {}
