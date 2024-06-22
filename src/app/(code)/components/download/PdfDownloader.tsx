@@ -8,9 +8,9 @@ interface Props {
 export default function PdfDownloader({ url }: Props) {
   return (
     <Button size="icon" asChild>
-        <a href={`${process.env.URL_BACKEND}${url}`} target="_blank">
-            <FaRegFilePdf size={20} />
-        </a>
+      <a href={`${process.env.URL_BACKEND}${url}`} target="_blank">
+        <FaRegFilePdf size={20} />
+      </a>
     </Button>
   );
 }
