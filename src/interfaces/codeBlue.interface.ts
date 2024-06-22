@@ -1,21 +1,20 @@
 export interface ResponseCodeBlue {
-    data: CodeBlue[];
-    meta: Meta;
+  data: CodeBlue[];
+  meta: Meta;
 }
 
 export interface CodeBlue {
-    id:        string;
-    activeBy:  string;
-    createdAt: string;
-    location:  string;
-    operator:  string;
-    team:      string;
+  activeBy: string;
+  createdAt: string;
+  id: string;
+  location: string;
+  operator: string;
+  team: string;
 }
 
 export interface Meta {
-    total:    number;
-    page:     number;
-    lastPage: number;
-    nextPage: null;
-    prevPage: null;
+  totalPages: number;
+  currentPage: number;
+  nextPage: number;
+  prevPage: null;
 }

@@ -1,16 +1,9 @@
-import { getCodeRed } from "@/actions/codeRed/getCodeRed";
+import { getCodeBlue } from "@/actions/codeBlue/getCodeBlue";
 import { MainTable } from "@/components/table/MainTable";
 import { Pagination } from "@/components/table/TablePagination";
 import { TableCell, TableRow } from "@/components/ui/table";
 
-const columns = [
-  "Fecha/Hora",
-  "Hora llamada bomberos",
-  "Comunicación con COGRID",
-  "Ubicación",
-  "Activo por",
-  "Operador",
-];
+const columns = ["Fecha/Hora", "Equipo", "Ubicación", "Activo por", "Operador"];
 
 interface Props {
   limit: number;
@@ -18,7 +11,7 @@ interface Props {
 }
 
 export default async function CodeBlueTable({ limit, page }: Props) {
-  const { data, meta } = await getCodeRed({ limit, page });
+  const { data, meta } = await getCodeBlue({ limit, page });
 
   return (
     <div>
@@ -26,8 +19,7 @@ export default async function CodeBlueTable({ limit, page }: Props) {
         {data.map((item, index) => (
           <TableRow key={index}>
             <TableCell>{`${item.createdAt}`}</TableCell>
-            <TableCell>{`${item.firefighterCalledTime}`}</TableCell>
-            <TableCell>{item.COGRID}</TableCell>
+            <TableCell>{item.team}</TableCell>
             <TableCell>{item.location}</TableCell>
             <TableCell>{item.activeBy}</TableCell>
             <TableCell>{item.operator}</TableCell>
