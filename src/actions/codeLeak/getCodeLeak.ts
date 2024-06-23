@@ -16,6 +16,7 @@ export const getCodeLeak = async ({
 
   try {
     const session = await auth();
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-leak?limit=${limit}&page=${page}`,
       {
@@ -29,6 +30,10 @@ export const getCodeLeak = async ({
         },
       }
     );
+
+    if (!response.ok) {
+      throw new Error("Error al obtener los datos de la tabla de código aéreo");
+    }
 
     const data = await response.json();
 

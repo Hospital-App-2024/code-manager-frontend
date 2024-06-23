@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { Sidebar } from "./components/Sidebar";
 
 export default async function CodeLayout({
@@ -7,11 +6,9 @@ export default async function CodeLayout({
   children: React.ReactNode;
 }) {
   return (
-      <div className="h-screen flex">
-        <Sidebar />
-        <main className="bg-gray-100 w-full overflow-y-auto">
-        {children}
-        </main>
-      </div>
+    <div className="h-screen flex">
+      <Sidebar />
+      <main className="bg-gray-100 w-full overflow-y-auto">{children}</main>
+    </div>
   );
 }

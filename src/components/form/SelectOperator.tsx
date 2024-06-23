@@ -25,10 +25,10 @@ export const SelectOperator = ({ onValueChange, value, name }: Props) => {
   const [operators, setOperators] = useState<Operator[]>([]);
 
   const fetchOperators = async () => {
-    const operators = await getOperators();
-    setOperators(operators);
-  }
-  
+    const data = await getOperators();
+    setOperators(data);
+  };
+
   useEffect(() => {
     fetchOperators();
   }, []);
@@ -43,7 +43,7 @@ export const SelectOperator = ({ onValueChange, value, name }: Props) => {
           </SelectTrigger>
         </FormControl>
         <SelectContent>
-          {operators.map((operator: Operator) => (
+          {operators?.map((operator: Operator) => (
             <SelectItem key={operator.id} value={operator.id}>
               {operator.name}
             </SelectItem>

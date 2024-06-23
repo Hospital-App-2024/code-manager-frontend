@@ -1,6 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
 import type { JWT } from "next-auth/jwt";
-import Credentials from "next-auth/providers/credentials";
 import {
   DEFAULT_LOGIN_REDIRECT,
   apiAuthPrefix,
@@ -61,14 +60,15 @@ export const authConfig = {
       return true;
     },
     async jwt({ token, user }) {
-      console.log("jwt", token, user);
+      // if (!token.user) return null;
+
       if (user) return { ...token, ...user };
 
       if (new Date().getTime() > token.expiresIn) {
-        throw new Error("Token expired");
+        return null;
       }
 
-      return await refreshToken(token);
+      return token;
     },
     async session({ token, session }) {
       session.user = token.user;
