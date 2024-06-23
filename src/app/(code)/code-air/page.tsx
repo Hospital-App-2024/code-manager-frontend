@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { Modal } from "../components/modal/Modal";
 import TableSkeleton from "@/components/skeleton/TableSkeleton";
-import PdfDownloader from "../components/download/PdfDownloader";
 import { CodeAirForm } from "../components/form/CodeAirForm";
 import CodeAirTable from "../components/table/CodeAirTable";
+import { PdfRender } from "../components/utils/PdfRender";
 
 interface Props {
   searchParams: {
@@ -19,7 +19,7 @@ export default function CodeAirPage({ searchParams }: Props) {
   return (
     <div className="container mt-10 space-y-3">
       <div className="flex gap-2 mb-2">
-        <PdfDownloader url="/code-blue/report" />
+        <PdfRender url="/code-air/report" />
         <Modal
           title="Crear código Aéreo"
           subtitle="Complete el formulario para crear un código aéreo"

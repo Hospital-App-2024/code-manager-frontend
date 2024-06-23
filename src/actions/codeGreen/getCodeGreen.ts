@@ -1,32 +1,39 @@
 "use server";
+import { auth } from "@/auth";
 import { ResponseCodeGreen } from "@/interfaces/codeGreen.interface";
 
 interface Props {
-    limit: number;
-    page: number;
+  limit: number;
+  page: number;
 }
 
-export const getCodeGreen = async ({ limit, page }: Props): Promise<ResponseCodeGreen> => {
+export const getCodeGreen = async ({
+  limit,
+  page,
+}: Props): Promise<ResponseCodeGreen> => {
+  if (isNaN(Number(page)) || page < 1) page = 1;
+  if (isNaN(Number(limit)) || limit < 1) limit = 5;
 
-    if (isNaN(Number(page)) || page < 1) page = 1;
-    if (isNaN(Number(limit)) || limit < 1) limit = 5;
+  try {
+    const session = await auth();
 
-    try {
-        const response = await fetch(
-            `${process.env.URL_BACKEND}/code-green?limit=${limit}&page=${page}`,
-            {
-                method: 'GET',
-                next: {
-                    tags: ['code-green']
-                }
-            }
-        );
+    const response = await fetch(
+      `${process.env.URL_BACKEND}/code-green?limit=${limit}&page=${page}`,
+      {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${session?.token}`,
+        },
+        next: {
+          tags: ["code-green"],
+        },
+      }
+    );
 
-        const data = await response.json();
+    const data = await response.json();
 
-        return data;
-
-    } catch (error) {
-        throw new Error('Error al obtener los datos de la tabla de código verde');
-    }
-}
+    return data;
+  } catch (error) {
+    throw new Error("Error al obtener los datos de la tabla de código verde");
+  }
+};

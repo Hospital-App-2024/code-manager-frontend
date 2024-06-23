@@ -15,8 +15,8 @@ export default async function CodeBlueTable({ limit, page }: Props) {
 
   return (
     <div>
-      <MainTable totalPages={meta.totalPages} columns={columns}>
-        {data.map((item, index) => (
+      <MainTable totalPages={meta?.totalPages} columns={columns}>
+        {data?.map((item, index) => (
           <TableRow key={index}>
             <TableCell>{`${item.createdAt}`}</TableCell>
             <TableCell>{item.team}</TableCell>

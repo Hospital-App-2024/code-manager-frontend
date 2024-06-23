@@ -1,4 +1,5 @@
 "use server";
+import { auth } from "@/auth";
 import { ResponseCodeRed } from "@/interfaces/codeRed.interface";
 
 interface Props {
@@ -14,10 +15,15 @@ export const getCodeRed = async ({
   if (isNaN(Number(limit)) || limit < 1) limit = 5;
 
   try {
+    const session = await auth();
+
     const response = await fetch(
       `${process.env.URL_BACKEND}/code-red?limit=${limit}&page=${page}`,
       {
         method: "GET",
+        headers: {
+          authorization: `Bearer ${session?.token}`,
+        },
         next: {
           tags: ["code-red"],
         },

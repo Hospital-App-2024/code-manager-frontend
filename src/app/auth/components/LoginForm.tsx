@@ -21,9 +21,9 @@ import { Input } from "@/components/ui/input";
 import { useTransition } from "react";
 import { loginAction } from "@/actions/auth/login.action";
 import { ButtonForm } from "@/components/form/ButtonForm";
+import { toast } from "sonner";
 
 export const LoginForm = () => {
-
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<LoginValues>({
@@ -40,6 +40,11 @@ export const LoginForm = () => {
         email: values.email,
         password: values.password,
       });
+
+      if (resp?.error) {
+        toast.error(resp.error);
+        return;
+      }
     });
   };
 
@@ -83,7 +88,11 @@ export const LoginForm = () => {
               )}
             />
 
-            <ButtonForm isDisabled={isPending} title="Iniciar sesión" type="submit" />
+            <ButtonForm
+              isDisabled={isPending}
+              title="Iniciar sesión"
+              type="submit"
+            />
           </form>
         </Form>
       </CardContent>

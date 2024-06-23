@@ -14,14 +14,14 @@ export const loginAction = async (values: LoginValues) => {
       password: formData.get("password"),
     });
   } catch (error) {
-    if (error instanceof AuthError)  {
+    if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
           return {
             error: "Credenciales incorrectas",
           };
         default:
-          return { error: "Error desconocido" };
+          return { error: "Credenciales incorrectas" };
       }
     }
 
