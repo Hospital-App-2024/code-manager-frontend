@@ -1,25 +1,31 @@
 "use server";
-import { ResponseCodeAir } from "@/interfaces/codeAir.interface";
+import { auth } from "@/auth";
+import { ResponseCodeLeak } from "@/interfaces/codeLeak.interface";
 
 interface Props {
   limit: number;
   page: number;
 }
 
-export const getCodeAir = async ({
+export const getCodeLeak = async ({
   limit,
   page,
-}: Props): Promise<ResponseCodeAir> => {
+}: Props): Promise<ResponseCodeLeak> => {
   if (isNaN(Number(page)) || page < 1) page = 1;
   if (isNaN(Number(limit)) || limit < 1) limit = 5;
 
   try {
+    const session = await auth();
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-air?limit=${limit}&page=${page}`,
+      `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-leak?limit=${limit}&page=${page}`,
       {
         method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${session?.token}`,
+        },
         next: {
-          tags: ["code-air"],
+          tags: ["code-leak"],
         },
       }
     );

@@ -61,10 +61,11 @@ export const authConfig = {
       return true;
     },
     async jwt({ token, user }) {
+      console.log("jwt", token, user);
       if (user) return { ...token, ...user };
 
-      if (new Date().getTime() < token.expiresIn) {
-        return token;
+      if (new Date().getTime() > token.expiresIn) {
+        throw new Error("Token expired");
       }
 
       return await refreshToken(token);
