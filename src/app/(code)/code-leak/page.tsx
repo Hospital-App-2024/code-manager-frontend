@@ -5,6 +5,7 @@ import PdfDownloader from "../components/download/PdfDownloader";
 import { CodeAirForm } from "../components/form/CodeAirForm";
 import CodeAirTable from "../components/table/CodeAirTable";
 import { CodeLeakForm } from "../components/form/CodeLeakForm";
+import CodeLeakTable from "../components/table/CodeLeakTable";
 
 interface Props {
   searchParams: {
@@ -29,7 +30,7 @@ export default function CodeLeakPage({ searchParams }: Props) {
         </Modal>
       </div>
       <Suspense fallback={<TableSkeleton />}>
-        <CodeAirTable limit={limit} page={page} />
+        <CodeLeakTable limit={limit} page={page} />
       </Suspense>
     </div>
   );
