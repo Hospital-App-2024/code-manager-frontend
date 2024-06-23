@@ -77,7 +77,7 @@ export const CodeRedForm = () => {
               <DatePicker
                 title="Hora de llamado a bomberos"
                 name={field.name}
-                value={field.value}
+                value={field.value ? field.value : undefined}
                 onChange={field.onChange}
               />
             )}

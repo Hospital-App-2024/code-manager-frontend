@@ -9,7 +9,7 @@ import { format } from "date-fns";
 
 interface Props {
   name: string;
-  value: Date;
+  value: Date | undefined;
   title?: string;
   onChange: (value: Date) => void;
 }
