@@ -18,7 +18,7 @@ export const getCodeLeak = async ({
     const session = await auth();
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-leak?limit=${limit}&page=${page}`,
+      `${process.env.URL_BACKEND}/code-leak?limit=${limit}&page=${page}`,
       {
         method: "GET",
         headers: {

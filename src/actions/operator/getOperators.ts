@@ -7,7 +7,7 @@ export const getOperators = async (): Promise<Operator[]> => {
     const session = await auth();
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_URL_BACKEND}/operator`,
+      `${process.env.URL_BACKEND}/operator`,
       {
         method: "GET",
         headers: {

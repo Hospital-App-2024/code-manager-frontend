@@ -13,7 +13,7 @@ export const getCodeBlue = async ({ limit, page }: Props): Promise<ResponseCodeB
 
     try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-blue?limit=${limit}&page=${page}`,
+            `${process.env.URL_BACKEND}/code-blue?limit=${limit}&page=${page}`,
             {
                 method: 'GET',
                 next: {
@@ -21,6 +21,8 @@ export const getCodeBlue = async ({ limit, page }: Props): Promise<ResponseCodeB
                 }
             }
         );
+
+        console.log(response)
 
         const data = await response.json();
 

@@ -8,7 +8,7 @@ export const createCodeAir = async (
 ): Promise<CodeAir> => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-air`,
+      `${process.env.URL_BACKEND}/code-air`,
       {
         method: "Post",
         body: JSON.stringify(values),

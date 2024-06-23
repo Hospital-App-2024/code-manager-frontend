@@ -13,7 +13,7 @@ export const getCodeGreen = async ({ limit, page }: Props): Promise<ResponseCode
 
     try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-green?limit=${limit}&page=${page}`,
+            `${process.env.URL_BACKEND}/code-green?limit=${limit}&page=${page}`,
             {
                 method: 'GET',
                 next: {

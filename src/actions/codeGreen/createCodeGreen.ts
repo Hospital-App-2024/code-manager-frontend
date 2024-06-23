@@ -7,7 +7,7 @@ import { revalidateTag } from "next/cache";
 export const createCodeGreen = async (values: CodeGreenValues): Promise<CodeGreen> => {
     try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-green`,
+            `${process.env.URL_BACKEND}/code-green`,
             {
                 method: 'Post',
                 body: JSON.stringify(values),

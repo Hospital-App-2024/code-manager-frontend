@@ -10,7 +10,7 @@ export const createCodeLeak = async (
   try {
     const session = await auth();
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-leak`,
+      `${process.env.URL_BACKEND}/code-leak`,
       {
         method: "Post",
         body: JSON.stringify(values),

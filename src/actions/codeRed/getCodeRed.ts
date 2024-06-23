@@ -15,7 +15,7 @@ export const getCodeRed = async ({
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-red?limit=${limit}&page=${page}`,
+      `${process.env.URL_BACKEND}/code-red?limit=${limit}&page=${page}`,
       {
         method: "GET",
         next: {

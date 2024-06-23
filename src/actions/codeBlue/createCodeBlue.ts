@@ -7,7 +7,7 @@ import { revalidateTag } from "next/cache";
 export const createCodeBlue = async (values: CodeBlueValues): Promise<CodeBlue> => {
     try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-blue`,
+            `${process.env.URL_BACKEND}/code-blue`,
             {
                 method: 'Post',
                 body: JSON.stringify(values),

@@ -8,7 +8,7 @@ export const createCodeRed = async (
 ): Promise<CodeRed> => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_URL_BACKEND}/code-red`,
+      `${process.env.URL_BACKEND}/code-red`,
       {
         method: "Post",
         body: JSON.stringify(values),
