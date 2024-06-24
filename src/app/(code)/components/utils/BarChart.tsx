@@ -52,6 +52,9 @@ export const BarChart = ({ data, title }: Props) => {
   return (
     <div className="bg-white p-1 rounded shadow w-full">
       <h2 className="text-center font-semibold">{title}</h2>
+      <h4 className="text-center text-gray-500 text-xs">
+        Año: {new Date().getFullYear()}
+      </h4>
       <Bar options={options} data={data} />
     </div>
   );
