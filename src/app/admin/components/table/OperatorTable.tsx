@@ -16,8 +16,8 @@ export default async function OperatorTable({ limit, page }: Props) {
   return (
     <div>
       <MainTable totalPages={meta.totalPages} columns={columns}>
-        {data.map((item, index) => (
-          <TableRow key={index}>
+        {data.map((item) => (
+          <TableRow key={item.id}>
             <TableCell>{item.id}</TableCell>
             <TableCell>{item.name}</TableCell>
           </TableRow>
