@@ -7,8 +7,8 @@ import { TableCell, TableRow } from "@/components/ui/table";
 
 const columns = [
   "Fecha/Hora",
-  "Lugar de la emergencia",
-  "Detalle de la emergencia",
+  "Descripción del paciente",
+  "Ubicación",
   "Activo por",
   "Operador",
 ];
@@ -26,9 +26,11 @@ export default async function CodeLeakTable({ limit, page }: Props) {
       <MainTable totalPages={meta.totalPages} columns={columns}>
         {data.map((item, index) => (
           <TableRow key={index}>
-            <TableCell>{`${item.createdAt}`}</TableCell>
+            <TableCell>{item.createdAt}</TableCell>
+            <TableCell>{item.patientDescription}</TableCell>
             <TableCell>{item.location}</TableCell>
             <TableCell>{item.activeBy}</TableCell>
+            <TableCell>{item.operator.name}</TableCell>
           </TableRow>
         ))}
       </MainTable>
