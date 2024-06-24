@@ -26,3 +26,5 @@ export const OperatorSchema = z.object({
     message: "Mínimo 3 caracteres",
   }),
 });
+
+export interface OperatorValues extends z.infer<typeof OperatorSchema> {}
