@@ -19,7 +19,7 @@ export default function CodeGreenPage({ searchParams }: Props) {
   return (
     <div className="container mt-10 space-y-3">
       <div className="flex gap-2 mb-2">
-        <PdfRender url="code-green/report" />
+        <PdfRender url="/code-green/report" />
         <Modal
           title="Crear Código Verde"
           subtitle="Complete el formulario para crear un código verde"

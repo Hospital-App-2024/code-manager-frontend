@@ -8,13 +8,8 @@ export interface CodeLeak {
   activeBy: string;
   createdAt: string;
   location: string;
-  operator: Operator;
+  operator: string;
   patientDescription: string;
-}
-
-export interface Operator {
-  id: string;
-  name: string;
 }
 
 export interface Meta {

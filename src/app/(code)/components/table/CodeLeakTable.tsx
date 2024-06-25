@@ -1,5 +1,3 @@
-import { getCodeAir } from "@/actions/codeAir/getCodeAir";
-import { getCodeBlue } from "@/actions/codeBlue/getCodeBlue";
 import { getCodeLeak } from "@/actions/codeLeak/getCodeLeak";
 import { MainTable } from "@/components/table/MainTable";
 import { Pagination } from "@/components/table/TablePagination";
@@ -30,7 +28,7 @@ export default async function CodeLeakTable({ limit, page }: Props) {
             <TableCell>{item.patientDescription}</TableCell>
             <TableCell>{item.location}</TableCell>
             <TableCell>{item.activeBy}</TableCell>
-            <TableCell>{item.operator.name}</TableCell>
+            <TableCell>{item.operator}</TableCell>
           </TableRow>
         ))}
       </MainTable>
