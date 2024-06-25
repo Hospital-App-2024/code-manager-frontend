@@ -31,7 +31,7 @@ export function PdfRender({ url }: Props) {
           </DialogDescription>
         </DialogHeader>
         <iframe
-          src={`${process.env.URL_BACKEND}${url}`}
+          src={`http://localhost:3001/api${url}`}
           style={{ width: "100%", height: "400px" }}
           allowFullScreen
         ></iframe>
