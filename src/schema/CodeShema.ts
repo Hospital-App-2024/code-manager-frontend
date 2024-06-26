@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { format } from "@formkit/tempo";
 
 export const CodeGreenSchema = z.object({
   activeBy: z.string().min(3, {
@@ -119,3 +118,58 @@ export const codeLeakSchema = z.object({
 });
 
 export interface CodeLeakValues extends z.infer<typeof codeLeakSchema> {}
+
+// Fire Alarm
+export const TypeDeviceSchema = z.object({
+  type: z.string().min(2, {
+    message: "Mínimo 2 caracteres",
+  }),
+});
+
+export interface TypeDeviceValues extends z.infer<typeof TypeDeviceSchema> {}
+
+export const NodoSchema = z.object({
+  nodo: z
+    .string()
+    .transform((v) => Number(v))
+    .pipe(
+      z
+        .number({
+          message: "Ingrese un número",
+        })
+        .positive({
+          message: "Ingrese un número positivo",
+        })
+    ),
+  building: z
+    .string()
+    .min(1, {
+      message: "Mínimo 1 carácter",
+    })
+    .transform((v) => v.toUpperCase()),
+});
+
+export interface NodoValues extends z.infer<typeof NodoSchema> {}
+
+export const DeviceSchema = z.object({
+  lazo: z.string().min(1, {
+    message: "Mínimo 1 caracteres",
+  }),
+  device: z
+    .string()
+    .min(2, {
+      message: "Mínimo 2 caracteres",
+    })
+    .transform((v) => v.toUpperCase()),
+  location: z.string().min(2, {
+    message: "Mínimo 2 caracteres",
+  }),
+  nodoId: z.string().min(4, {
+    message: "Seleccione un nodo",
+  }),
+  typeDeviceId: z.string().min(4, {
+    message: "Seleccione un tipo de dispositivo",
+  }),
+});
+
+export interface DeviceValues extends z.infer<typeof DeviceSchema> {}
