@@ -15,10 +15,12 @@ const columns = [
 interface Props {
   limit: number;
   page: number;
+  from?: string;
+  to?: string;
 }
 
-export default async function CodeGreenTable({ limit, page }: Props) {
-  const { data, meta } = await getCodeGreen({ limit, page });
+export default async function CodeGreenTable({ limit, page, from, to }: Props) {
+  const { data, meta } = await getCodeGreen({ limit, page, from, to });
 
   return (
     <div>
