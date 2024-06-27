@@ -5,7 +5,6 @@ import CodeGreenTable from "../components/table/CodeGreenTable";
 import TableSkeleton from "@/components/skeleton/TableSkeleton";
 import { PdfRender } from "../components/utils/PdfRender";
 import { SearchDate } from "../components/search/SearchDate";
-import PdfDownloader from "../components/download/PdfDownloader";
 
 interface Props {
   searchParams: {
@@ -24,7 +23,7 @@ export default function CodeGreenPage({ searchParams }: Props) {
     <div className="container mt-10 space-y-3">
       <div className="flex gap-2 mb-2 justify-between ">
         <div className="flex gap-2">
-          <PdfDownloader url="/code-green/report" />
+          <PdfRender url="/code-green/report" />
           <Modal
             title="Crear Código Verde"
             subtitle="Complete el formulario para crear un código verde"
