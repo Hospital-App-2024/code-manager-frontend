@@ -27,6 +27,19 @@ export const CodeGreenSchema = z.object({
 
 export interface CodeGreenValues extends z.infer<typeof CodeGreenSchema> {}
 
+export const CloseCodeGreenSchema = z.object({
+  observations: z.string().optional(),
+  closedBy: z.string().min(3, {
+    message: "Mínimo 3 caracteres",
+  }),
+  closedAt: z.date({
+    required_error: "Seleccione una fecha y hora",
+  }),
+});
+
+export interface CloseCodeGreenValues
+  extends z.infer<typeof CloseCodeGreenSchema> {}
+
 export enum Team {
   "UCI" = "UCI",
   "URGENCIA" = "URGENCIA",
@@ -129,18 +142,9 @@ export const TypeDeviceSchema = z.object({
 export interface TypeDeviceValues extends z.infer<typeof TypeDeviceSchema> {}
 
 export const NodoSchema = z.object({
-  nodo: z
-    .string()
-    .transform((v) => Number(v))
-    .pipe(
-      z
-        .number({
-          message: "Ingrese un número",
-        })
-        .positive({
-          message: "Ingrese un número positivo",
-        })
-    ),
+  nodo: z.string().min(1, {
+    message: "Mínimo 1 carácter",
+  }),
   building: z
     .string()
     .min(1, {

@@ -11,6 +11,10 @@ export interface CodeGreen {
   location: string;
   operator: string;
   police: string;
+  isClosed: string;
+  observations?: string;
+  closedBy?: string;
+  closedAt?: string;
 }
 
 export interface Meta {

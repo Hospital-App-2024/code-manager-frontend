@@ -22,7 +22,7 @@ export const NodoForm = () => {
     resolver: zodResolver(NodoSchema),
     defaultValues: {
       building: "",
-      nodo: 0,
+      nodo: "",
     },
   });
 
@@ -64,7 +64,7 @@ export const NodoForm = () => {
             <FormItem>
               <FormLabel>Nodo</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Nodo" type="number" />
+                <Input {...field} placeholder="Nodo" />
               </FormControl>
               <FormMessage />
             </FormItem>

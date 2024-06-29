@@ -15,13 +15,28 @@ interface Props {
   title: string;
   subtitle: string;
   icon?: React.ReactNode;
+  disabled?: boolean;
+  variant?:
+    | "link"
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost";
 }
 
-export const Modal = ({ title, subtitle, children, icon }: Props) => {
+export const Modal = ({
+  title,
+  subtitle,
+  children,
+  icon,
+  disabled,
+  variant = "default",
+}: Props) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="default" size="icon" title={title}>
+        <Button variant={variant} size="icon" title={title} disabled={disabled}>
           {icon ? icon : <RiMenuAddLine />}
         </Button>
       </DialogTrigger>

@@ -13,9 +13,15 @@ import {
 
 interface Props {
   url: string;
+  from?: string;
+  to?: string;
 }
 
-export function PdfRender({ url }: Props) {
+export function PdfRender({ url, from, to }: Props) {
+  const params = new URLSearchParams();
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -31,7 +37,7 @@ export function PdfRender({ url }: Props) {
           </DialogDescription>
         </DialogHeader>
         <iframe
-          src={`${process.env.URL_BACKEND}${url}`}
+          src={`${process.env.URL_BACKEND}${url}?${params}`}
           style={{ width: "100%", height: "400px" }}
           allowFullScreen
         ></iframe>

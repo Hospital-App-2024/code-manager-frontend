@@ -2,14 +2,19 @@ import { getCodeGreen } from "@/actions/codeGreen/getCodeGreen";
 import { MainTable } from "@/components/table/MainTable";
 import { Pagination } from "@/components/table/TablePagination";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Modal } from "../modal/Modal";
+import { HiOutlineLockClosed } from "react-icons/hi2";
+import { CloseCodeGreenForm } from "../form/CloseCodeGreenForm";
+import { Separator } from "@/components/ui/separator";
 
 const columns = [
   "Fecha/hora",
-  "Operador",
-  "Activo por",
+  "Nombre Funcionario",
   "Carabineros",
   "Ubicación",
   "Evento",
+  "Operador",
+  "Acciones",
 ];
 
 interface Props {
@@ -27,12 +32,31 @@ export default async function CodeGreenTable({ limit, page, from, to }: Props) {
       <MainTable totalPages={meta.totalPages} columns={columns}>
         {data.map((item, index) => (
           <TableRow key={index}>
-            <TableCell>{`${item.createdAt}`}</TableCell>
-            <TableCell>{item.operator}</TableCell>
-            <TableCell>{item.activeBy}</TableCell>
+            <TableCell className="space-y-2">
+              <p>Activado: {item.createdAt}</p>
+              <Separator />
+              <p>finalizado: {item.closedAt}</p>
+            </TableCell>
+            <TableCell className="space-y-2">
+              <p>Activado: {item.activeBy}</p>
+              <Separator />
+              <p>Finalizado: {item.closedBy}</p>
+            </TableCell>
             <TableCell>{item.police}</TableCell>
             <TableCell>{item.location}</TableCell>
             <TableCell>{item.event}</TableCell>
+            <TableCell>{item.operator}</TableCell>
+            <TableCell>
+              <Modal
+                variant="ghost"
+                title="Cerrar código verde"
+                subtitle="Ingrese los datos para cerrar el código verde"
+                icon={<HiOutlineLockClosed size={15} />}
+                disabled={!!item.closedBy}
+              >
+                <CloseCodeGreenForm codeGreenId={item.id} />
+              </Modal>
+            </TableCell>
           </TableRow>
         ))}
       </MainTable>
