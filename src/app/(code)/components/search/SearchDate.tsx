@@ -17,6 +17,8 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
+import { es } from "date-fns/locale";
+
 export function SearchDate({
   className,
 }: React.HTMLAttributes<HTMLDivElement>) {
@@ -71,11 +73,11 @@ export function SearchDate({
               {date?.from ? (
                 date.to ? (
                   <>
-                    {format(date.from, "LLL dd, y")} -{" "}
-                    {format(date.to, "LLL dd, y")}
+                    {format(date.from, "LLL dd, y", { locale: es })} -{" "}
+                    {format(date.to, "LLL dd, y", { locale: es })}
                   </>
                 ) : (
-                  format(date.from, "LLL dd, y")
+                  format(date.from, "LLL dd, y", { locale: es })
                 )
               ) : (
                 <span>Seleccionar rango de fechas</span>
@@ -85,6 +87,7 @@ export function SearchDate({
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               initialFocus
+              locale={es}
               mode="range"
               defaultMonth={date?.from}
               selected={date}

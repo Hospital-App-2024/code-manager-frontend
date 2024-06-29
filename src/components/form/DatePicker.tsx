@@ -5,7 +5,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 
 interface Props {
   name: string;
@@ -20,7 +20,9 @@ export const DatePicker = ({
   value,
   title = "Fecha y hora",
 }: Props) => {
-  const formattedValue = value ? format(value, "yyyy-MM-dd'T'HH:mm") : "";
+  const isDateValid = isValid(value);
+  const formattedValue =
+    isDateValid && value ? format(value, "yyyy-MM-dd'T'HH:mm") : "";
   return (
     <FormItem>
       <FormLabel>{title}</FormLabel>
