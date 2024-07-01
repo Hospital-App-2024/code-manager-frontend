@@ -6,6 +6,8 @@ import { Modal } from "../modal/Modal";
 import { HiOutlineLockClosed } from "react-icons/hi2";
 import { CloseCodeGreenForm } from "../form/CloseCodeGreenForm";
 import { Separator } from "@/components/ui/separator";
+import { MdOutlineModeEdit } from "react-icons/md";
+import { CodeGreenForm } from "../form/CodeGreenForm";
 
 const columns = [
   "Fecha/hora",
@@ -42,7 +44,7 @@ export default async function CodeGreenTable({ limit, page, from, to }: Props) {
               <Separator />
               <p>Finalizado: {item.closedBy}</p>
             </TableCell>
-            <TableCell>{item.police}</TableCell>
+            <TableCell className="text-center">{item.police}</TableCell>
             <TableCell>{item.location}</TableCell>
             <TableCell>{item.event}</TableCell>
             <TableCell>{item.operator}</TableCell>
@@ -55,6 +57,15 @@ export default async function CodeGreenTable({ limit, page, from, to }: Props) {
                 disabled={!!item.closedBy}
               >
                 <CloseCodeGreenForm codeGreenId={item.id} />
+              </Modal>
+              <Modal
+                variant="ghost"
+                title="Editar código verde"
+                subtitle="Ingrese los datos para editar el código verde"
+                icon={<MdOutlineModeEdit size={15} />}
+                disabled={!!item.closedBy}
+              >
+                <CodeGreenForm codeGreenId={item.id} />
               </Modal>
             </TableCell>
           </TableRow>

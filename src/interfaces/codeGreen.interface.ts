@@ -23,3 +23,23 @@ export interface Meta {
   nextPage: null;
   prevPage: null;
 }
+
+export interface CodeGreenByID {
+  id: string;
+  activeBy: string;
+  createdAt: Date;
+  location: string;
+  event: string;
+  operatorId: string;
+  police: boolean;
+  observations: null;
+  isClosed: boolean;
+  closedBy: null | string;
+  closedAt: null | Date;
+  operator: Operator;
+}
+
+export interface Operator {
+  id: string;
+  name: string;
+}

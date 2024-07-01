@@ -22,12 +22,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { CodeGreenSchema, CodeGreenValues } from "@/schema/CodeShema";
 import { DatePicker } from "@/components/form/DatePicker";
 import { SelectOperator } from "@/components/form/SelectOperator";
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { createCodeGreen } from "@/actions/codeGreen/createCodeGreen";
 import { ButtonForm } from "@/components/form/ButtonForm";
+import { getCodeGreenById } from "@/actions/codeGreen/getCodeGreenById";
+import { updateCodeGreen } from "@/actions/codeGreen/updateCodeGreen";
+import Spinner from "@/components/skeleton/Spinner";
 
-export const CodeGreenForm = () => {
+interface Props {
+  codeGreenId?: string;
+}
+
+export const CodeGreenForm = ({ codeGreenId }: Props) => {
   const [isPending, startTransition] = useTransition();
+  const [isLoaded, setIsLoaded] = useState(true);
+
   const form = useForm<CodeGreenValues>({
     resolver: zodResolver(CodeGreenSchema),
     defaultValues: {
@@ -40,17 +49,50 @@ export const CodeGreenForm = () => {
     },
   });
 
+  useEffect(() => {
+    if (codeGreenId) {
+      getCodeGreenById({ id: codeGreenId })
+        .then((data) => {
+          form.setValue("createdAt", new Date(data.createdAt));
+          form.setValue("police", data.police);
+          form.setValue("activeBy", data.activeBy);
+          form.setValue("operatorId", data.operatorId);
+          form.setValue("location", data.location);
+          form.setValue("event", data.event);
+        })
+        .catch(() => {
+          toast.error("Error al obtener el código verde");
+        })
+        .finally(() => setIsLoaded(false));
+    }
+  }, [codeGreenId, form]);
+
   const onSubmit = async (data: CodeGreenValues) => {
     startTransition(async () => {
       try {
+        if (codeGreenId) {
+          await updateCodeGreen(codeGreenId, data);
+          toast.success("Código verde actualizado correctamente");
+          form.reset();
+          return;
+        }
+
         await createCodeGreen(data);
         toast.success("Event created successfully");
         form.reset();
       } catch (error) {
-        toast.error("Error al crear el código verde");
+        toast.error("Error al realizar la acción");
       }
     });
   };
+
+  if (isLoaded && codeGreenId) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
@@ -154,7 +196,11 @@ export const CodeGreenForm = () => {
           )}
         />
 
-        <ButtonForm isDisabled={isPending} title="Crear" type="submit" />
+        <ButtonForm
+          isDisabled={isPending}
+          title={codeGreenId ? "Editar" : "Crear"}
+          type="submit"
+        />
       </form>
     </Form>
   );
