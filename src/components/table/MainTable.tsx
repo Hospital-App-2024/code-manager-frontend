@@ -19,7 +19,7 @@ export const MainTable = ({ children, columns, totalPages }: Props) => {
       <TableHeader className="bg-primary ">
         <TableRow>
           {columns.map((column, index) => (
-            <TableHead key={index} className="text-white text-center">
+            <TableHead key={index} className="text-white">
               {column}
             </TableHead>
           ))}

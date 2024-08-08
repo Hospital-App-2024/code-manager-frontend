@@ -5,13 +5,13 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Modal } from "../modal/Modal";
 import { HiOutlineLockClosed } from "react-icons/hi2";
 import { CloseCodeGreenForm } from "../form/CloseCodeGreenForm";
-import { Separator } from "@/components/ui/separator";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { CodeGreenForm } from "../form/CodeGreenForm";
 
 const columns = [
-  "Fecha/hora",
-  "Nombre Funcionario",
+  "Fecha",
+  "Hora",
+  "Activado por",
   "Carabineros",
   "Ubicación",
   "Evento",
@@ -34,17 +34,10 @@ export default async function CodeGreenTable({ limit, page, from, to }: Props) {
       <MainTable totalPages={meta.totalPages} columns={columns}>
         {data.map((item, index) => (
           <TableRow key={index}>
-            <TableCell className="space-y-2">
-              <p>Activado: {item.createdAt}</p>
-              <Separator />
-              <p>finalizado: {item.closedAt}</p>
-            </TableCell>
-            <TableCell className="space-y-2">
-              <p>Activado: {item.activeBy}</p>
-              <Separator />
-              <p>Finalizado: {item.closedBy}</p>
-            </TableCell>
-            <TableCell className="text-center">{item.police}</TableCell>
+            <TableCell>{item.createdAt.split(",")[0]}</TableCell>
+            <TableCell>{item.createdAt.split(",")[1]}</TableCell>
+            <TableCell>{item.activeBy}</TableCell>
+            <TableCell>{item.police}</TableCell>
             <TableCell>{item.location}</TableCell>
             <TableCell>{item.event}</TableCell>
             <TableCell>{item.operator}</TableCell>
