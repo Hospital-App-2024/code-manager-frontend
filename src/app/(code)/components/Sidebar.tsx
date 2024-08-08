@@ -11,6 +11,7 @@ import { SidebarMenuItem } from "./SidebarMenuItem";
 import { useUiStore } from "@/store/ui-store";
 import { SidebarButton } from "./SidebarButton";
 import { LogoutButton } from "./LogoutButton";
+import { Separator } from "@/components/ui/separator";
 
 const className = "w-6 h-6";
 
@@ -56,25 +57,14 @@ export const Sidebar = () => {
   const isSideMenuOpen = useUiStore((state) => state.isSideMenuOpen);
   return (
     <>
-      <SidebarButton />
       <aside
         className={cn("p-2 shadow-lg w-14 bg-background transition-all", {
           "w-60": isSideMenuOpen,
         })}
       >
         <div className="w-full overflow-hidden flex flex-col h-full">
-          <div className="w-full flex justify-center">
-            <span
-              className={cn(
-                "font-bold py-4 block text-center whitespace-nowrap transition-all",
-                {
-                  "opacity-0": !isSideMenuOpen,
-                }
-              )}
-            >
-              Code Manager
-            </span>
-          </div>
+          <SidebarButton />
+          <Separator />
           <nav className="flex-1 space-y-2">
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.path} {...item} />

@@ -23,7 +23,7 @@ export const SidebarMenuItem = ({ icon, path, title }: Props) => {
       )}
     >
       <span className="p-1 bg-gray-100 rounded">{icon}</span>
-      <span className="">{title}</span>
+      <span>{title}</span>
     </Link>
   );
 };
