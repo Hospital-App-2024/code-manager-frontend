@@ -35,6 +35,7 @@ export const CloseCodeGreenSchema = z.object({
   closedAt: z.date({
     required_error: "Seleccione una fecha y hora",
   }),
+  isClosed: z.boolean(),
 });
 
 export interface CloseCodeGreenValues

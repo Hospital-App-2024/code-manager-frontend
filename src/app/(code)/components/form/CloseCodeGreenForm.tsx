@@ -31,6 +31,7 @@ export function CloseCodeGreenForm({ codeGreenId }: Props) {
       closedAt: new Date(),
       closedBy: "",
       observations: "",
+      isClosed: true,
     },
   });
 
