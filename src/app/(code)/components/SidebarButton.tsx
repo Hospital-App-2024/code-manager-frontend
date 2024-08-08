@@ -9,7 +9,7 @@ export const SidebarButton = () => {
   return (
     <div className="grid grid-cols-3 items-center py-2">
       {isSideMenuOpen && (
-        <h2 className="text-xl font-bold col-span-2 text-end">InventoryApp</h2>
+        <h2 className="text-xl font-bold col-span-2 text-end">Code Manger</h2>
       )}
       <div className="text-end">
         <Button onClick={toggleSideMenu} variant="outline" size="icon">
