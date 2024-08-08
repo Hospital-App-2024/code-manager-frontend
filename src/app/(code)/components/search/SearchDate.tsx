@@ -57,7 +57,7 @@ export function SearchDate({
   };
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 flex-wrap">
       <div className={cn("grid gap-2", className)}>
         <Popover>
           <PopoverTrigger asChild>

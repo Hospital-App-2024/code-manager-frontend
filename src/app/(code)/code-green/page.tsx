@@ -21,7 +21,7 @@ export default function CodeGreenPage({ searchParams }: Props) {
 
   return (
     <div className="container mt-10 space-y-3">
-      <div className="flex gap-2 mb-2 justify-between ">
+      <div className="flex gap-2 mb-2 justify-between flex-wrap">
         <div className="flex gap-2">
           <PdfRender
             url="/code-green/report"
