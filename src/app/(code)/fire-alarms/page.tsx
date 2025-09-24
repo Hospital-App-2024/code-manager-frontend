@@ -10,15 +10,16 @@ import { NodoForm } from "../components/form/NodoForm";
 import { DeviceForm } from "../components/form/DeviceForm";
 
 interface Props {
-  searchParams: {
+  searchParams: Promise<{
     limit?: string;
     page?: string;
     nodo?: string;
     search?: string;
-  };
+  }>;
 }
 
-export default function FireAlarmsPage({ searchParams }: Props) {
+export default async function FireAlarmsPage(props: Props) {
+  const searchParams = await props.searchParams;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 

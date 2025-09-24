@@ -5,13 +5,14 @@ import { Suspense } from "react";
 import TableSkeleton from "@/components/skeleton/TableSkeleton";
 
 interface Props {
-  searchParams: {
+  searchParams: Promise<{
     limit?: string;
     page?: string;
-  };
+  }>;
 }
 
-export default function UserPage({ searchParams }: Props) {
+export default async function UserPage(props: Props) {
+  const searchParams = await props.searchParams;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 

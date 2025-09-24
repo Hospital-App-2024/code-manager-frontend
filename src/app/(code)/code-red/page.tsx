@@ -6,13 +6,14 @@ import CodeRedTable from "../components/table/CodeRedTable";
 import { PdfRender } from "../components/utils/PdfRender";
 
 interface Props {
-  searchParams: {
+  searchParams: Promise<{
     limit?: string;
     page?: string;
-  };
+  }>;
 }
 
-export default function CodeRedPage({ searchParams }: Props) {
+export default async function CodeRedPage(props: Props) {
+  const searchParams = await props.searchParams;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 

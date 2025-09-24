@@ -5,13 +5,14 @@ import OperatorTable from "../components/table/OperatorTable";
 import { OperatorForm } from "../components/form/OperatorForm";
 
 interface Props {
-  searchParams: {
+  searchParams: Promise<{
     limit?: string;
     page?: string;
-  };
+  }>;
 }
 
-export default function OperatorPage({ searchParams }: Props) {
+export default async function OperatorPage(props: Props) {
+  const searchParams = await props.searchParams;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 

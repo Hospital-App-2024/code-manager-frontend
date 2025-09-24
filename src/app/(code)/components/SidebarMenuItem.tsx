@@ -2,6 +2,8 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+import type { JSX } from "react";
+
 interface Props {
   path: string;
   icon: JSX.Element;

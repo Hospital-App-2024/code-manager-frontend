@@ -6,13 +6,14 @@ import CodeBlueTable from "../components/table/CodeBlueTable";
 import { PdfRender } from "../components/utils/PdfRender";
 
 interface Props {
-  searchParams: {
+  searchParams: Promise<{
     limit?: string;
     page?: string;
-  };
+  }>;
 }
 
-export default function CodeBluePage({ searchParams }: Props) {
+export default async function CodeBluePage(props: Props) {
+  const searchParams = await props.searchParams;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 

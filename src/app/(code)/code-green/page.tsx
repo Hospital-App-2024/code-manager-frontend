@@ -7,15 +7,16 @@ import { PdfRender } from "../components/utils/PdfRender";
 import { SearchDate } from "../components/search/SearchDate";
 
 interface Props {
-  searchParams: {
+  searchParams: Promise<{
     limit?: string;
     page?: string;
     from?: string;
     to?: string;
-  };
+  }>;
 }
 
-export default function CodeGreenPage({ searchParams }: Props) {
+export default async function CodeGreenPage(props: Props) {
+  const searchParams = await props.searchParams;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 
