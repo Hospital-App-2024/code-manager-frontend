@@ -1,16 +1,19 @@
 import { logout } from "@/actions/auth/logout.action";
+import { Button } from "@/components/ui/button";
+import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { CiLogout } from "react-icons/ci";
 
 export const LogoutButton = () => {
   return (
-    <button
+    <SidebarMenuButton
       onClick={async () => await logout()}
-      className="flex items-center gap-2 hover:bg-red-500 p-1 rounded text-gray-400 hover:text-white font-semibold transition-all w-full whitespace-nowrap"
+      tooltip={"Cerrar Sesión"}
+      size="lg"
     >
-      <span className="p-1 bg-gray-100 rounded">
-        <CiLogout className="w-6 h-6 text-red-600" />
+      <CiLogout className="text-red-600" />
+      <span className="text-red-600">
+        Cerrar Sesión
       </span>
-      <span className="">Logout</span>
-    </button>
+    </SidebarMenuButton>
   );
 };

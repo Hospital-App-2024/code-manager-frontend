@@ -8,7 +8,7 @@ import CodeLeakTotalByMonth from "./components/chart/CodeLeakTotalByMonth";
 
 export default function DashboardPage() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 container py-4 gap-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 container py-4 gap-4">
       <Suspense fallback={<BarSkeleton />}>
         <CodeBlueTotalByMonth />
       </Suspense>
