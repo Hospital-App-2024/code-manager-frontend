@@ -1,23 +1,19 @@
 import { getCodeBlueTotalByMonth } from "@/actions/codeBlue/getCodeBlueTotalByMonth";
-import { BarChart } from "../utils/BarChart";
+import { BarDisplay } from "@/app/(code)/components/utils/BarDisplay";
 
 export default async function CodeBlueTotalByMonth() {
   const codeBlue = await getCodeBlueTotalByMonth();
 
   return (
-    <BarChart
-      title="Total de Código Azul"
-      data={{
-        labels: codeBlue.map((item) => item.month),
-        datasets: [
-          {
+      <BarDisplay
+        title="Total de Código Azul"
+        data={codeBlue}
+        backgroundColor="#3182CE"
+        chartConfig={{
+          value: {
             label: "Total",
-            data: codeBlue.map((item) => item.value),
-            borderWidth: 1,
-            backgroundColor: "#3182CE",
           },
-        ],
-      }}
-    />
+        }}
+      />
   );
 }

@@ -1,22 +1,18 @@
 import { getCodeLeakTotalByMonth } from "@/actions/codeLeak/getCodeLeakTotalByMonth";
-import { BarChart } from "../utils/BarChart";
+import { BarDisplay } from "@/app/(code)/components/utils/BarDisplay";
 
 export default async function CodeLeakTotalByMonth() {
   const codeLeak = await getCodeLeakTotalByMonth();
 
   return (
-    <BarChart
+    <BarDisplay
       title="Total de Código de Fuga"
-      data={{
-        labels: codeLeak.map((item) => item.month),
-        datasets: [
-          {
-            label: "Total",
-            data: codeLeak.map((item) => item.value),
-            borderWidth: 1,
-            backgroundColor: "#FFC107",
-          },
-        ],
+      data={codeLeak}
+      backgroundColor="#FFC107"
+      chartConfig={{
+        value: {
+          label: "Total",
+        },
       }}
     />
   );

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
-import "./globals.css";
 import { SessionProvider } from "next-auth/react";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 import { auth } from "@/auth";
+import { ThemeProvider } from "@/providers/theme-provider";
+
+import "./globals.css";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -20,16 +22,22 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  const session = await auth()
+  const session = await auth();
 
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body className={fontSans.className}>
-        <SessionProvider session={session}>
-          { children }
-          <Toaster richColors position="top-center"/>
-        </SessionProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider session={session}>
+            {children}
+            <Toaster richColors position="top-center" />
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

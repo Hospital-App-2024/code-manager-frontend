@@ -8,7 +8,6 @@ import { FaRunning } from "react-icons/fa";
 import { GiMovementSensor } from "react-icons/gi";
 import { cn } from "@/lib/utils";
 import { SidebarMenuItem } from "./SidebarMenuItem";
-import { useUiStore } from "@/store/ui-store";
 import { SidebarButton } from "./SidebarButton";
 import { LogoutButton } from "./LogoutButton";
 import { Separator } from "@/components/ui/separator";
@@ -54,12 +53,11 @@ const menuItems = [
 ];
 
 export const Sidebar = () => {
-  const isSideMenuOpen = useUiStore((state) => state.isSideMenuOpen);
   return (
     <>
       <aside
         className={cn("p-2 shadow-lg w-14 bg-background transition-all", {
-          "w-60": isSideMenuOpen,
+          // "w-60": isSideMenuOpen,
         })}
       >
         <div className="w-full overflow-hidden flex flex-col h-full">

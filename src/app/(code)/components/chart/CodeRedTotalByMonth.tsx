@@ -1,22 +1,18 @@
-import { BarChart } from "../utils/BarChart";
 import { getCodeRedTotalByMonth } from "@/actions/codeRed/getCodeRedTotalByMonth";
+import { BarDisplay } from "../utils/BarDisplay";
 
 export default async function CodeRedTotalByMonth() {
   const codeRed = await getCodeRedTotalByMonth();
 
   return (
-    <BarChart
+    <BarDisplay
       title="Total de Código Rojo"
-      data={{
-        labels: codeRed.map((item) => item.month),
-        datasets: [
-          {
-            label: "Total",
-            data: codeRed.map((item) => item.value),
-            borderWidth: 1,
-            backgroundColor: "#F44336",
-          },
-        ],
+      data={codeRed}
+      backgroundColor="#F44336"
+      chartConfig={{
+        value: {
+          label: "Total",
+        },
       }}
     />
   );

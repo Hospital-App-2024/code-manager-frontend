@@ -1,22 +1,18 @@
-import { BarChart } from "../utils/BarChart";
 import { getCodeAirTotalByMonth } from "@/actions/codeAir/getCodeAirTotalByMonth";
+import { BarDisplay } from "../utils/BarDisplay";
 
 export default async function CodeAirTotalByMonth() {
   const codeAir = await getCodeAirTotalByMonth();
 
   return (
-    <BarChart
+    <BarDisplay
       title="Total de Código Aéreo"
-      data={{
-        labels: codeAir.map((item) => item.month),
-        datasets: [
-          {
-            label: "Total",
-            data: codeAir.map((item) => item.value),
-            borderWidth: 1,
-            backgroundColor: "#0891B2",
-          },
-        ],
+      data={codeAir}
+      backgroundColor="#0891B2"
+      chartConfig={{
+        value: {
+          label: "Total",
+        },
       }}
     />
   );

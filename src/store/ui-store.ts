@@ -1,12 +1,12 @@
-import { create } from "zustand";
+// import { create } from "zustand";
 
-interface State {
-  isSideMenuOpen: boolean;
-  toggleSideMenu: () => void;
-}
+// interface State {
+//   isSideMenuOpen: boolean;
+//   toggleSideMenu: () => void;
+// }
 
-export const useUiStore = create<State>()((set) => ({
-  isSideMenuOpen: false,
-  toggleSideMenu: () =>
-    set((state) => ({ isSideMenuOpen: !state.isSideMenuOpen })),
-}));
+// export const useUiStore = create<State>()((set) => ({
+//   isSideMenuOpen: false,
+//   toggleSideMenu: () =>
+//     set((state) => ({ isSideMenuOpen: !state.isSideMenuOpen })),
+// }));
