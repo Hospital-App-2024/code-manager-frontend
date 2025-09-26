@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { ThemeProvider } from "@/providers/theme-provider";
 
 import "./globals.css";
+import { QueryProvider } from "@/providers/query-provier";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -34,8 +35,10 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider session={session}>
-            {children}
-            <Toaster richColors position="top-center" />
+            <QueryProvider>
+              {children}
+              <Toaster richColors position="top-center" />
+            </QueryProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>

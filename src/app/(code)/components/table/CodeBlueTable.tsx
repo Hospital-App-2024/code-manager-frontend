@@ -1,37 +1,24 @@
+"use client";
 import { getCodeBlue } from "@/actions/codeBlue/getCodeBlue";
+import { codeBlueColumns } from "@/components/table/columns";
+import { DataTable } from "@/components/table/data-table";
 import { MainTable } from "@/components/table/MainTable";
-import { Pagination } from "@/components/table/TablePagination";
+import { Pagination } from "@/components/table/pagination";
 import { TableCell, TableRow } from "@/components/ui/table";
-
-const columns = ["Fecha/Hora", "Equipo", "Ubicación", "Activo por", "Operador"];
+import { useCodeBlue } from "@/hooks/use-code-blue";
 
 interface Props {
   limit: number;
   page: number;
 }
 
-export default async function CodeBlueTable({ limit, page }: Props) {
-  const { data, meta } = await getCodeBlue({ limit, page });
+export default function CodeBlueTable({ limit, page }: Props) {
+  const { data, isLoading, isFetching } = useCodeBlue({ limit, page });
 
   return (
-    <div>
-      <MainTable totalPages={meta?.totalPages} columns={columns}>
-        {data?.map((item, index) => (
-          <TableRow key={index}>
-            <TableCell>{`${item.createdAt}`}</TableCell>
-            <TableCell>{item.team}</TableCell>
-            <TableCell>{item.location}</TableCell>
-            <TableCell>{item.activeBy}</TableCell>
-            <TableCell>{item.operator}</TableCell>
-          </TableRow>
-        ))}
-      </MainTable>
-      <Pagination
-        currentPage={meta.currentPage}
-        nextPage={meta.nextPage}
-        prevPage={meta.prevPage}
-        totalPages={meta.totalPages}
-      />
-    </div>
+    <>
+    <DataTable columns={codeBlueColumns} data={data?.data || []} isLoading={isLoading || isFetching} />
+    <Pagination currentPage={page} totalPages={data?.meta.totalPages || 1} /> 
+    </>
   );
 }

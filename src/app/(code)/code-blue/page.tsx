@@ -28,9 +28,7 @@ export default async function CodeBluePage(props: Props) {
           <CodeBlueForm />
         </Modal>
       </div>
-      <Suspense fallback={<TableSkeleton />}>
-        <CodeBlueTable limit={limit} page={page} />
-      </Suspense>
+      <CodeBlueTable limit={limit} page={page} />
     </div>
   );
 }
