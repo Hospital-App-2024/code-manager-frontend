@@ -5,7 +5,7 @@ export default async function AuthLayout({
 }) {
 
   return (
-    <main className="h-screen flex justify-center items-center bg-slate-100 p-3">
+    <main className="h-screen flex justify-center items-center p-3">
       {children}
     </main>
   );
