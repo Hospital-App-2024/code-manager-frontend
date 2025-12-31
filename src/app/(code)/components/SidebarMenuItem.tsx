@@ -1,8 +1,8 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
 import type { JSX } from "react";
+import { SidebarMenuButton, SidebarMenuItem as SidebarItem } from "@/components/ui/sidebar";
 
 interface Props {
   path: string;
@@ -15,17 +15,13 @@ export const SidebarMenuItem = ({ icon, path, title }: Props) => {
   const isActive = currentPath === path;
 
   return (
-    <Link
-      href={path}
-      className={cn(
-        "flex items-center gap-2 hover:bg-primary p-1 rounded text-gray-400 hover:text-white font-semibold transition-all w-full whitespace-nowrap",
-        {
-          "bg-primary text-white": isActive,
-        }
-      )}
-    >
-      <span className="p-1 bg-gray-100 rounded">{icon}</span>
-      <span>{title}</span>
-    </Link>
+    <SidebarItem>
+      <SidebarMenuButton asChild size="lg" isActive={isActive}>
+        <Link href={path}>
+          {icon}
+          <span>{title}</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarItem>
   );
 };

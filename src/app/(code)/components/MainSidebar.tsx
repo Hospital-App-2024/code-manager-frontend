@@ -6,7 +6,7 @@ import { FaFire } from "react-icons/fa";
 import { FaHelicopter } from "react-icons/fa";
 import { FaRunning } from "react-icons/fa";
 import { GiMovementSensor } from "react-icons/gi";
-// import { SidebarMenuItem } from "./SidebarMenuItem";
+import { SidebarMenuItem } from "./SidebarMenuItem";
 
 import { LogoutButton } from "./LogoutButton";
 
@@ -15,13 +15,12 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
 
 const menuItems = [
   {
@@ -63,31 +62,53 @@ const menuItems = [
 
 export const MainSidebar = () => {
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader />
+    // <Sidebar collapsible="icon">
+    //   <SidebarHeader />
+    //   <SidebarContent>
+    //     <SidebarGroup>
+    //       <SidebarGroupLabel>Menú</SidebarGroupLabel>
+    //       <SidebarMenu>
+    //         {menuItems.map((item) => (
+    //           <SidebarMenuItem key={item.path}>
+    //             <SidebarMenuButton tooltip={item.title} asChild size="lg">
+    //               <Link path={item.path} icon={item.icon} title={item.title} />
+    //             </SidebarMenuButton>
+    //           </SidebarMenuItem>
+    //         ))}
+    //       </SidebarMenu>
+    //     </SidebarGroup>
+    //   </SidebarContent>
+    //   <SidebarFooter>
+    //     <SidebarMenu>
+    //       <SidebarMenuItem>
+    //           <LogoutButton />
+    //       </SidebarMenuItem>
+    //     </SidebarMenu>
+    //   </SidebarFooter>
+    // </Sidebar>
+    <Sidebar>
+      <SidebarHeader>
+        <div className="text-lg font-bold p-4">Code Manager</div>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Menú</SidebarGroupLabel>
-          <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.path}>
-                <SidebarMenuButton tooltip={item.title} asChild size="lg">
-                  <Link href={item.path}>
-                    {item.icon}
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => (
+                <SidebarMenuItem
+                  key={item.path}
+                  path={item.path}
+                  icon={item.icon}
+                  title={item.title}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-              <LogoutButton />
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <LogoutButton />
       </SidebarFooter>
     </Sidebar>
   );
