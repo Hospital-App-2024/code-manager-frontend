@@ -5,7 +5,7 @@ export interface ResponseCodeBlue {
 
 export interface CodeBlue {
   activeBy: string;
-  createdAt: string;
+  createdAt: Date;
   id: string;
   location: string;
   operator: string;

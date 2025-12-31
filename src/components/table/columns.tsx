@@ -35,7 +35,7 @@ export const codeBlueColumns: ColumnDef<CodeBlue>[] = [
     accessorKey: "createdAt",
     header: "Fecha de creación",
     cell: ({ row }) => {
-      return <div>{new Date(row.original.createdAt).toLocaleString()}</div>;
+      return <div>{row.original.createdAt.toLocaleString()}</div>;
     },
   },
   {
