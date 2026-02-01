@@ -18,7 +18,7 @@ export default async function CodeRedPage(props: Props) {
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 
   return (
-    <div className="container mt-10 space-y-3">
+    <div className="">
       <div className="flex gap-2 mb-2">
         <PdfRender url="/code-red/report" />
         <Modal
@@ -28,9 +28,7 @@ export default async function CodeRedPage(props: Props) {
           <CodeRedForm />
         </Modal>
       </div>
-      <Suspense fallback={<TableSkeleton />}>
-        <CodeRedTable limit={limit} page={page} />
-      </Suspense>
+      <CodeRedTable limit={limit} page={page} />
     </div>
   );
 }

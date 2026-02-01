@@ -1,45 +1,28 @@
-import { getCodeRed } from "@/actions/codeRed/getCodeRed";
-import { MainTable } from "@/components/table/MainTable";
-import { Pagination } from "@/components/table/TablePagination";
-import { TableCell, TableRow } from "@/components/ui/table";
-
-const columns = [
-  "Fecha/Hora",
-  "Comunicación con COGRID",
-  "Hora de llamada a bomberos",
-  "Ubicación",
-  "Activo por",
-  "Operador",
-];
+"use client";
+import { codeRedColumns } from "@/components/table/columns";
+import { DataTable } from "@/components/table/data-table";
+import { Pagination } from "@/components/table/pagination";
+import { useCodeRed } from "@/hooks/use-code-red";
 
 interface Props {
   limit: number;
   page: number;
 }
 
-export default async function CodeRedTable({ limit, page }: Props) {
-  const { data, meta } = await getCodeRed({ limit, page });
+export default function CodeRedTable({ limit, page }: Props) {
+  const { data, isLoading, isFetching } = useCodeRed({ limit, page });
 
   return (
-    <div>
-      <MainTable totalPages={meta.totalPages} columns={columns}>
-        {data.map((item, index) => (
-          <TableRow key={index}>
-            <TableCell>{`${item.createdAt}`}</TableCell>
-            <TableCell>{item.COGRID}</TableCell>
-            <TableCell>{item.firefighterCalledTime}</TableCell>
-            <TableCell>{item.location}</TableCell>
-            <TableCell>{item.activeBy}</TableCell>
-            <TableCell>{item.operator}</TableCell>
-          </TableRow>
-        ))}
-      </MainTable>
-      <Pagination
-        currentPage={meta.currentPage}
-        nextPage={meta.nextPage}
-        prevPage={meta.prevPage}
-        totalPages={meta.totalPages}
+    <>
+      <DataTable 
+        columns={codeRedColumns} 
+        data={data?.data || []} 
+        isLoading={isLoading || isFetching} 
       />
-    </div>
+      <Pagination 
+        currentPage={page} 
+        totalPages={data?.meta.totalPages || 1} 
+      /> 
+    </>
   );
 }

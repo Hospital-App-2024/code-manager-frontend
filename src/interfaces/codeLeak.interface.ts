@@ -9,6 +9,7 @@ export interface CodeLeak {
   createdAt: string;
   location: string;
   operator: string;
+  patientName?: string;
   patientDescription: string;
 }
 

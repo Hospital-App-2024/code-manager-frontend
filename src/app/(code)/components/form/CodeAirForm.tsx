@@ -15,13 +15,27 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/form/DatePicker";
 import { SelectOperator } from "@/components/form/SelectOperator";
-import { useTransition } from "react";
-import { ButtonForm } from "@/components/form/ButtonForm";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { code_air } from "@/requests";
+import { QueryKeys } from "@/interfaces";
 import { CodeAirSchema, CodeAirValues } from "@/schema/CodeShema";
-import { createCodeAir } from "@/actions/codeAir/createCodeAir";
+import { ButtonForm } from "@/components/form/ButtonForm";
 
 export const CodeAirForm = () => {
-  const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: any) => code_air.post(data),
+    onSuccess: () => {
+      toast.success("Código aéreo creado correctamente");
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.CodeAir] });
+      form.reset();
+    },
+    onError: () => {
+      toast.error("Error al crear código aéreo");
+    },
+  });
+
   const form = useForm<CodeAirValues>({
     resolver: zodResolver(CodeAirSchema),
     defaultValues: {
@@ -29,19 +43,12 @@ export const CodeAirForm = () => {
       activeBy: "",
       operatorId: "",
       location: "",
+      emergencyDetail: "",
     },
   });
 
   const onSubmit = async (data: CodeAirValues) => {
-    startTransition(async () => {
-      try {
-        await createCodeAir(data);
-        toast.success("Código azul creado correctamente");
-        form.reset();
-      } catch (error) {
-        toast.error("Error al crear código azul");
-      }
-    });
+    mutate(data);
   };
 
   return (

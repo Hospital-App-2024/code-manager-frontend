@@ -1,11 +1,11 @@
 import { QueryKeys } from "@/interfaces"
-import { code_blue, QueryParams } from "@/requests"
+import { code_red, QueryParams } from "@/requests"
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 
-export const useCodeBlue = (queryParams: QueryParams) => {
+export const useCodeRed = (queryParams: QueryParams) => {
     return useQuery({
-        queryKey: [QueryKeys.CodeBlue, queryParams],
-        queryFn: async () => code_blue.get(queryParams),
+        queryKey: [QueryKeys.CodeRed, queryParams],
+        queryFn: async () => code_red.get(queryParams),
         refetchOnWindowFocus: false,
         staleTime: 1000 * 60 * 5, // 5 minutes
         placeholderData: keepPreviousData,

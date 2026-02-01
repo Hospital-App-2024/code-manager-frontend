@@ -22,12 +22,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { CodeRedSchema, CodeRedValues, Team } from "@/schema/CodeShema";
 import { DatePicker } from "@/components/form/DatePicker";
 import { SelectOperator } from "@/components/form/SelectOperator";
-import { useTransition } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { code_red } from "@/requests";
+import { QueryKeys } from "@/interfaces";
 import { ButtonForm } from "@/components/form/ButtonForm";
-import { createCodeRed } from "@/actions/codeRed/createCodeGreen";
 
 export const CodeRedForm = () => {
-  const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: any) => code_red.post(data),
+    onSuccess: () => {
+      toast.success("Código rojo creado exitosamente");
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.CodeRed] });
+      form.reset();
+    },
+    onError: () => {
+      toast.error("Error al crear código rojo");
+    },
+  });
+
   const form = useForm<CodeRedValues>({
     resolver: zodResolver(CodeRedSchema),
     defaultValues: {
@@ -41,15 +55,7 @@ export const CodeRedForm = () => {
   });
 
   const onSubmit = async (data: CodeRedValues) => {
-    startTransition(async () => {
-      try {
-        await createCodeRed(data);
-        toast.success("Código rojo creado exitosamente");
-        form.reset();
-      } catch (error) {
-        toast.error("Error al crear código rojo");
-      }
-    });
+    mutate(data);
   };
 
   return (

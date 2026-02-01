@@ -1,34 +1,50 @@
-import { MainTable } from "@/components/table/MainTable";
-import { Pagination } from "@/components/table/TablePagination";
-import { TableCell, TableRow } from "@/components/ui/table";
+"use client";
+import { operatorColumns } from "@/components/table/columns";
+import { DataTable } from "@/components/table/data-table";
+import { Pagination } from "@/components/table/pagination";
 import { getOperatorsWithPagination } from "@/actions/operator/getOperatorsWithPagination.ts";
-
-const columns = ["ID", "Nombre"];
+import { useEffect, useState } from "react";
+import { Operator, Meta } from "@/interfaces/operator.interface";
 
 interface Props {
   limit: number;
   page: number;
 }
 
-export default async function OperatorTable({ limit, page }: Props) {
-  const { data, meta } = await getOperatorsWithPagination({ limit, page });
+export default function OperatorTable({ limit, page }: Props) {
+  const [data, setData] = useState<Operator[]>([]);
+  const [meta, setMeta] = useState<Meta | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getOperatorsWithPagination({ limit, page });
+        setData(response.data);
+        setMeta(response.meta);
+      } catch (error) {
+        console.error("Error fetching operators:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [limit, page]);
 
   return (
     <div>
-      <MainTable totalPages={meta.totalPages} columns={columns}>
-        {data.map((item) => (
-          <TableRow key={item.id}>
-            <TableCell>{item.id}</TableCell>
-            <TableCell>{item.name}</TableCell>
-          </TableRow>
-        ))}
-      </MainTable>
-      <Pagination
-        currentPage={meta.currentPage}
-        nextPage={meta.nextPage}
-        prevPage={meta.prevPage}
-        totalPages={meta.totalPages}
+      <DataTable
+        columns={operatorColumns}
+        data={data}
+        isLoading={isLoading}
       />
+      {meta && (
+        <Pagination
+          currentPage={page}
+          totalPages={meta.totalPages}
+        />
+      )}
     </div>
   );
 }

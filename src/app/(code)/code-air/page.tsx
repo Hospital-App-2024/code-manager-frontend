@@ -18,7 +18,7 @@ export default async function CodeAirPage(props: Props) {
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 
   return (
-    <div className="container mt-10 space-y-3">
+    <div className="">
       <div className="flex gap-2 mb-2">
         <PdfRender url="/code-air/report" />
         <Modal
@@ -28,9 +28,7 @@ export default async function CodeAirPage(props: Props) {
           <CodeAirForm />
         </Modal>
       </div>
-      <Suspense fallback={<TableSkeleton />}>
-        <CodeAirTable limit={limit} page={page} />
-      </Suspense>
+      <CodeAirTable limit={limit} page={page} />
     </div>
   );
 }

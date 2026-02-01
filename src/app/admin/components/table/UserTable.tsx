@@ -1,40 +1,50 @@
+"use client";
+import { userColumns } from "@/components/table/columns";
+import { DataTable } from "@/components/table/data-table";
+import { Pagination } from "@/components/table/pagination";
 import { getUsers } from "@/actions/user/getUsers";
-import { MainTable } from "@/components/table/MainTable";
-import { Pagination } from "@/components/table/TablePagination";
-import { TableCell, TableRow } from "@/components/ui/table";
-import { UserStatusToggle } from "../form/UserStatusToggle";
-
-const columns = ["Fecha/Hora", "name", "email", "role", "Activo"];
+import { useEffect, useState } from "react";
+import { User, Meta } from "@/interfaces/user.interface";
 
 interface Props {
   limit: number;
   page: number;
 }
 
-export default async function UserTable({ limit, page }: Props) {
-  const { data, meta } = await getUsers({ limit, page });
+export default function UserTable({ limit, page }: Props) {
+  const [data, setData] = useState<User[]>([]);
+  const [meta, setMeta] = useState<Meta | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getUsers({ limit, page });
+        setData(response.data);
+        setMeta(response.meta);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [limit, page]);
 
   return (
     <div>
-      <MainTable totalPages={meta.totalPages} columns={columns}>
-        {data.map((item, index) => (
-          <TableRow key={index}>
-            <TableCell>{`${item.createdAt}`}</TableCell>
-            <TableCell>{item.name}</TableCell>
-            <TableCell>{item.email}</TableCell>
-            <TableCell>{item.role}</TableCell>
-            <TableCell>
-              <UserStatusToggle value={item.isActive} userId={item.id} />
-            </TableCell>
-          </TableRow>
-        ))}
-      </MainTable>
-      <Pagination
-        currentPage={meta.currentPage}
-        nextPage={meta.nextPage}
-        prevPage={meta.prevPage}
-        totalPages={meta.totalPages}
+      <DataTable
+        columns={userColumns}
+        data={data}
+        isLoading={isLoading}
       />
+      {meta && (
+        <Pagination
+          currentPage={page}
+          totalPages={meta.totalPages}
+        />
+      )}
     </div>
   );
 }

@@ -1,44 +1,28 @@
-import { getCodeAir } from "@/actions/codeAir/getCodeAir";
-import { getCodeBlue } from "@/actions/codeBlue/getCodeBlue";
-import { MainTable } from "@/components/table/MainTable";
-import { Pagination } from "@/components/table/TablePagination";
-import { TableCell, TableRow } from "@/components/ui/table";
-
-const columns = [
-  "Fecha/Hora",
-  "Lugar de la emergencia",
-  "Detalle de la emergencia",
-  "Activo por",
-  "Operador",
-];
+"use client";
+import { codeAirColumns } from "@/components/table/columns";
+import { DataTable } from "@/components/table/data-table";
+import { Pagination } from "@/components/table/pagination";
+import { useCodeAir } from "@/hooks/use-code-air";
 
 interface Props {
   limit: number;
   page: number;
 }
 
-export default async function CodeAirTable({ limit, page }: Props) {
-  const { data, meta } = await getCodeAir({ limit, page });
+export default function CodeAirTable({ limit, page }: Props) {
+  const { data, isLoading, isFetching } = useCodeAir({ limit, page });
 
   return (
-    <div>
-      <MainTable totalPages={meta.totalPages} columns={columns}>
-        {data.map((item, index) => (
-          <TableRow key={index}>
-            <TableCell>{`${item.createdAt}`}</TableCell>
-            <TableCell>{item.location}</TableCell>
-            <TableCell>{item.emergencyDetail}</TableCell>
-            <TableCell>{item.activeBy}</TableCell>
-            <TableCell>{item.operator}</TableCell>
-          </TableRow>
-        ))}
-      </MainTable>
-      <Pagination
-        currentPage={meta.currentPage}
-        nextPage={meta.nextPage}
-        prevPage={meta.prevPage}
-        totalPages={meta.totalPages}
+    <>
+      <DataTable 
+        columns={codeAirColumns} 
+        data={data?.data || []} 
+        isLoading={isLoading || isFetching} 
       />
-    </div>
+      <Pagination 
+        currentPage={page} 
+        totalPages={data?.meta.totalPages || 1} 
+      /> 
+    </>
   );
 }

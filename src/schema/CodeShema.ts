@@ -125,6 +125,7 @@ export const codeLeakSchema = z.object({
   location: z.string().min(3, {
     message: "Mínimo 3 caracteres",
   }),
+  patientName: z.string().optional(),
   patientDescription: z.string().min(3, {
     message: "Mínimo 3 caracteres",
   }),

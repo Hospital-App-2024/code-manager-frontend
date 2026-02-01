@@ -1,9 +1,10 @@
 import { Suspense } from "react";
-import { Modal } from "../components/modal/Modal";
 import TableSkeleton from "@/components/skeleton/TableSkeleton";
-import { CodeBlueForm } from "../components/form/CodeBlueForm";
 import CodeBlueTable from "../components/table/CodeBlueTable";
 import { PdfRender } from "../components/utils/PdfRender";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
 
 interface Props {
   searchParams: Promise<{
@@ -18,15 +19,15 @@ export default async function CodeBluePage(props: Props) {
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 
   return (
-    <div className="container mt-10 space-y-3">
+    <div className="">
       <div className="flex gap-2 mb-2">
         <PdfRender url="/code-blue/report" />
-        <Modal
-          title="Crear código azul"
-          subtitle="Complete el formulario para crear un código azul"
-        >
-          <CodeBlueForm />
-        </Modal>
+        <Link href="/code-blue/create">
+          <Button className="flex items-center gap-2">
+            <PlusIcon className="w-4 h-4" />
+            Crear código azul
+          </Button>
+        </Link>
       </div>
       <CodeBlueTable limit={limit} page={page} />
     </div>

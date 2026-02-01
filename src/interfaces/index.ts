@@ -3,4 +3,6 @@ export enum QueryKeys {
     CodeGreen = "code-green",
     CodeYellow = "code-yellow",
     CodeRed = "code-red",
+    CodeAir = "code-air",
+    CodeLeak = "code-leak",
 }
