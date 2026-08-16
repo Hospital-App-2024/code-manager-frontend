@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ChevronLeftIcon } from "lucide-react";
-import { CodeLeakCreateForm } from "@/app/(code)/components/form/CodeLeakCreateForm";
+import { EmergencyCodeForm } from "@/app/(code)/components/form/EmergencyCodeForm";
 import { Button } from "@/components/ui/button";
 
-export default function CreateCodeLeakPage() {
+export default function CreatePage() {
   return (
     <>
       <div className="mb-8">
@@ -14,8 +14,7 @@ export default function CreateCodeLeakPage() {
           </Link>
         </Button>
       </div>
-
-      <CodeLeakCreateForm />
+      <EmergencyCodeForm type="LEAK" />
     </>
   );
 }

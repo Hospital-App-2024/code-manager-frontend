@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ChevronLeftIcon } from "lucide-react";
-import { CodeBlueCreateForm } from "@/app/(code)/components/form/CodeBlueCreateForm";
+import { EmergencyCodeForm } from "@/app/(code)/components/form/EmergencyCodeForm";
 import { Button } from "@/components/ui/button";
 
-export default function CreateCodeBluePage() {
+export default function CreatePage() {
   return (
     <>
       <div className="mb-8">
@@ -14,8 +14,7 @@ export default function CreateCodeBluePage() {
           </Link>
         </Button>
       </div>
-
-      <CodeBlueCreateForm />
+      <EmergencyCodeForm type="BLUE" />
     </>
   );
 }

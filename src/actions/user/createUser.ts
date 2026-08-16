@@ -2,7 +2,7 @@
 import { auth } from "@/auth";
 import { User } from "@/interfaces/user.interface";
 import { UserValues } from "@/schema/adminSchema";
-import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 export const createUser = async (values: UserValues): Promise<User> => {
   try {
@@ -22,7 +22,7 @@ export const createUser = async (values: UserValues): Promise<User> => {
     }
 
     const data = await response.json();
-    revalidateTag("users");
+    revalidatePath("/admin/users");
     return data;
   } catch (error) {
     throw new Error("Error al crear el usuario");

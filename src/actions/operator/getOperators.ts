@@ -1,33 +1,20 @@
 "use server";
 import { auth } from "@/auth";
-import { Operator } from "@/interfaces/operator.interface";
+import { Operator } from "@/interfaces/emergencyCode.interface";
 
 export const getOperators = async (): Promise<Operator[]> => {
-  try {
-    const session = await auth();
+  const session = await auth();
+  const url = `${process.env.NEXT_PUBLIC_URL_BACKEND || process.env.URL_BACKEND}/operator`;
 
-    const response = await fetch(
-      `${process.env.URL_BACKEND}/operator`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${session?.token}`,
-        },
-        next: {
-          tags: ["operator"],
-        },
-      }
-    );
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      authorization: `Bearer ${session?.token}`,
+    },
+    cache: "no-store",
+    next: { tags: ["operators"] },
+  });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener los operadores");
-    }
-
-    const data = await response.json();
-
-    return data;
-  } catch (error) {
-    throw new Error("Error al obtener los operadores");
-  }
+  if (!response.ok) return [];
+  return response.json();
 };

@@ -1,31 +1,33 @@
 "use server";
 import { auth } from "@/auth";
-import { ResponseCodeGreen } from "@/interfaces/codeGreen.interface";
-import { format } from "date-fns";
+import { ResponseEmergencyCode, CodeType } from "@/interfaces/emergencyCode.interface";
 
 interface Props {
   limit: number;
   page: number;
   from?: string;
   to?: string;
+  type?: CodeType;
 }
 
-export const getCodeGreen = async ({
+export const getEmergencyCodes = async ({
   limit,
   page,
   from,
   to,
-}: Props): Promise<ResponseCodeGreen> => {
+  type,
+}: Props): Promise<ResponseEmergencyCode> => {
   if (isNaN(Number(page)) || page < 1) page = 1;
   if (isNaN(Number(limit)) || limit < 1) limit = 5;
 
   const session = await auth();
 
-  let url = `${process.env.URL_BACKEND}/code-green?`;
+  let url = `${process.env.NEXT_PUBLIC_URL_BACKEND || process.env.URL_BACKEND}/emergency-codes?`;
 
   const params = new URLSearchParams();
   if (from) params.append("from", from);
   if (to) params.append("to", to);
+  if (type) params.append("type", type);
 
   url += `limit=${limit}&page=${page}&${params}`;
 
@@ -34,17 +36,12 @@ export const getCodeGreen = async ({
     headers: {
       authorization: `Bearer ${session?.token}`,
     },
-    next: {
-      tags: ["code-green"],
-    },
-    cache: "no-cache",
+    cache: "no-store",
   });
 
   if (!response.ok) {
     throw new Error(response.statusText);
   }
 
-  const data = await response.json();
-
-  return data;
+  return response.json();
 };

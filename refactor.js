@@ -1,4 +1,26 @@
-import { PdfRender } from "../components/utils/PdfRender";
+const fs = require('fs');
+const path = require('path');
+
+const tablesDir = 'src/app/(code)/components/table';
+if (fs.existsSync(tablesDir)) {
+  fs.readdirSync(tablesDir).forEach(file => {
+    if ((file.startsWith('Code') || file.startsWith('Fire')) && file !== 'EmergencyCodeTable.tsx') {
+      fs.unlinkSync(path.join(tablesDir, file));
+    }
+  });
+}
+
+const codes = [
+  { dir: 'code-blue', type: 'BLUE', label: 'azul' },
+  { dir: 'code-red', type: 'RED', label: 'rojo' },
+  { dir: 'code-air', type: 'AIR', label: 'aéreo' },
+  { dir: 'code-leak', type: 'LEAK', label: 'de fuga' }
+];
+
+codes.forEach(c => {
+  const pagePath = `src/app/(code)/${c.dir}/page.tsx`;
+  if (fs.existsSync(pagePath)) {
+    const content = `import { PdfRender } from "../components/utils/PdfRender";
 import { SearchDate } from "../components/search/SearchDate";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -14,7 +36,7 @@ interface Props {
   }>;
 }
 
-export default async function CodeGreenPage(props: Props) {
+export default async function Page(props: Props) {
   const searchParams = await props.searchParams;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
@@ -24,21 +46,21 @@ export default async function CodeGreenPage(props: Props) {
       <div className="flex gap-2 mb-2 justify-between flex-wrap">
         <div className="flex gap-2">
           <PdfRender
-            url="/emergency-codes/report?type=GREEN"
+            url="/emergency-codes/report?type=${c.type}"
             from={searchParams.from}
             to={searchParams.to}
           />
-          <Link href="/code-green/create">
+          <Link href="/${c.dir}/create">
             <Button className="flex items-center gap-2">
               <PlusIcon className="w-4 h-4" />
-              Activar código verde
+              Activar código ${c.label}
             </Button>
           </Link>
         </div>
         <SearchDate />
       </div>
       <EmergencyCodeTable
-        type="GREEN"
+        type="${c.type}"
         from={searchParams.from}
         to={searchParams.to}
         limit={limit}
@@ -47,3 +69,7 @@ export default async function CodeGreenPage(props: Props) {
     </div>
   );
 }
+`;
+    fs.writeFileSync(pagePath, content);
+  }
+});

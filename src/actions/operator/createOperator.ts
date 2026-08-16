@@ -2,7 +2,7 @@
 import { auth } from "@/auth";
 import { Operator } from "@/interfaces/operator.interface";
 import { OperatorValues } from "@/schema/adminSchema";
-import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 export const createOperator = async (
   values: OperatorValues
@@ -24,7 +24,7 @@ export const createOperator = async (
     }
 
     const data = await response.json();
-    revalidateTag("operator");
+    revalidatePath("/admin/operators");
     return data;
   } catch (error) {
     throw new Error("Error al crear el operador");

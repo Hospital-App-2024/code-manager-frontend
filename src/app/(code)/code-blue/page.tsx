@@ -1,35 +1,49 @@
-import { Suspense } from "react";
-import TableSkeleton from "@/components/skeleton/TableSkeleton";
-import CodeBlueTable from "../components/table/CodeBlueTable";
 import { PdfRender } from "../components/utils/PdfRender";
+import { SearchDate } from "../components/search/SearchDate";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
+import EmergencyCodeTable from "../components/table/EmergencyCodeTable";
 
 interface Props {
   searchParams: Promise<{
     limit?: string;
     page?: string;
+    from?: string;
+    to?: string;
   }>;
 }
 
-export default async function CodeBluePage(props: Props) {
+export default async function Page(props: Props) {
   const searchParams = await props.searchParams;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 
   return (
     <div className="">
-      <div className="flex gap-2 mb-2">
-        <PdfRender url="/code-blue/report" />
-        <Link href="/code-blue/create">
-          <Button className="flex items-center gap-2">
-            <PlusIcon className="w-4 h-4" />
-            Crear código azul
-          </Button>
-        </Link>
+      <div className="flex gap-2 mb-2 justify-between flex-wrap">
+        <div className="flex gap-2">
+          <PdfRender
+            url="/emergency-codes/report?type=BLUE"
+            from={searchParams.from}
+            to={searchParams.to}
+          />
+          <Link href="/code-blue/create">
+            <Button className="flex items-center gap-2">
+              <PlusIcon className="w-4 h-4" />
+              Activar código azul
+            </Button>
+          </Link>
+        </div>
+        <SearchDate />
       </div>
-      <CodeBlueTable limit={limit} page={page} />
+      <EmergencyCodeTable
+        type="BLUE"
+        from={searchParams.from}
+        to={searchParams.to}
+        limit={limit}
+        page={page}
+      />
     </div>
   );
 }

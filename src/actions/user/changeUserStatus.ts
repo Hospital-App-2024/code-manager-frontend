@@ -1,7 +1,7 @@
 "use server";
 import { auth } from "@/auth";
 import { User } from "@/interfaces/user.interface";
-import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 export const changeUserStatus = async (
   id: string,
@@ -24,7 +24,7 @@ export const changeUserStatus = async (
     }
 
     const data = await response.json();
-    revalidateTag("users");
+    revalidatePath("/admin/users");
     return data;
   } catch (error) {
     throw new Error("Error al actualizar el usuario");
