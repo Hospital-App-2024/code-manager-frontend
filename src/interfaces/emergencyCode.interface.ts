@@ -16,7 +16,7 @@ export interface EmergencyCode {
   observations?: string | null;
   operator: Operator;
 
-  // Code Green Fields
+  // Solo GREEN posee ciclo de cierre; en otros tipos estos campos son null.
   event?: string | null;
   police?: boolean | null;
   isClosed?: boolean | null;

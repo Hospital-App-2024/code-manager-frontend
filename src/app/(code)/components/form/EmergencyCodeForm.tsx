@@ -525,8 +525,8 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
               </div>
             )}
 
-            {/* SECCIÓN DE CIERRE (Disponible en edición o para Código Verde) */}
-            {initialData?.id && (
+            {/* El cierre es una regla exclusiva del Código Verde. */}
+            {initialData?.id && type === "GREEN" && (
               <div className="mt-4 pt-4 border-t space-y-4 bg-muted/20 p-4 rounded-lg">
                 <FormField
                   control={form.control}

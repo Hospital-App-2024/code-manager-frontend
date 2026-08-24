@@ -6,7 +6,6 @@ import {
   Clock, 
   EllipsisVerticalIcon, 
   EyeIcon, 
-  Lock, 
   SquarePenIcon 
 } from "lucide-react";
 
@@ -59,7 +58,7 @@ const ActionCell = ({
 
   return (
     <div className="flex items-center gap-1.5 justify-end">
-      {/* DIRECT CLOSE SHORTCUT FOR OPEN GREEN CODES (AND ANY OPEN EMERGENCY) */}
+      {/* Solo los códigos verdes poseen ciclo de cierre. */}
       {!item.isClosed && codeType === "GREEN" && (
         <CloseCodeModal item={item} />
       )}
@@ -203,18 +202,6 @@ const ActionCell = ({
               <EmergencyCodeForm type={codeType} initialData={item} />
             </DialogContent>
           </Dialog>
-
-          {/* CLOSE SHORTCUT INSIDE MENU FOR OTHER CODES */}
-          {!item.isClosed && codeType !== "GREEN" && (
-            <CloseCodeModal
-              item={item}
-              trigger={
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  <Lock className="mr-2 h-4 w-4 text-amber-600" /> Finalizar código
-                </DropdownMenuItem>
-              }
-            />
-          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
