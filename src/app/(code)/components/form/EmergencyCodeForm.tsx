@@ -1,20 +1,35 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { 
+  CalendarClock, 
+  CheckCircle2, 
+  FileText, 
+  MapPin, 
+  ShieldAlert, 
+  UserCheck, 
+  Users 
+} from "lucide-react";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -22,45 +37,65 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea";
+
 import { useOperator } from "@/hooks/use-operator";
 import { emergency_codes } from "@/requests";
-import { useQueryClient } from "@tanstack/react-query";
+
+import { CodeType, EmergencyCode } from "@/interfaces/emergencyCode.interface";
 import { QueryKeys } from "@/interfaces";
-import { toast } from "sonner";
-import { EmergencyCode, CodeType } from "@/interfaces/emergencyCode.interface";
+
+// Helper for local datetime-local formatting (YYYY-MM-DDTHH:mm)
+const getLocalDateTimeString = (isoString?: string) => {
+  const date = isoString ? new Date(isoString) : new Date();
+  const offset = date.getTimezoneOffset();
+  const local = new Date(date.getTime() - offset * 60 * 1000);
+  return local.toISOString().slice(0, 16);
+};
 
 // Validation schema
-const schema = z.object({
-  type: z.string().min(1, "Tipo de código es requerido"),
-  operatorId: z.string().min(1, "El operador es requerido"),
-  activeBy: z.string().min(1, "El activador es requerido"),
-  location: z.string().min(1, "La ubicación es requerida"),
-  activationTime: z.string().min(1, "La fecha de activación es requerida"),
-  observations: z.string().optional(),
-  
-  // GREEN
-  event: z.string().optional(),
-  police: z.boolean().optional(),
-  isClosed: z.boolean().optional(),
-  closedBy: z.string().optional(),
-  closedAt: z.string().optional(),
-  
-  // BLUE
-  team: z.string().optional(),
-  
-  // AIR
-  emergencyDetail: z.string().optional(),
-  
-  // RED
-  COGRID: z.boolean().optional(),
-  firefighterCalledTime: z.string().optional(),
-  
-  // LEAK
-  patientName: z.string().optional(),
-  patientDescription: z.string().optional(),
-});
+const schema = z
+  .object({
+    type: z.string().min(1, "El tipo de código es requerido"),
+    operatorId: z.string().min(1, "Debe seleccionar un operador"),
+    activeBy: z.string().min(1, "El nombre de quien activa es requerido"),
+    location: z.string().min(1, "La ubicación es requerida"),
+    activationTime: z.string().min(1, "La fecha y hora de activación es requerida"),
+    observations: z.string().optional(),
+
+    // GREEN
+    event: z.string().optional(),
+    police: z.boolean().optional(),
+    isClosed: z.boolean().optional(),
+    closedBy: z.string().optional(),
+    closedAt: z.string().optional(),
+
+    // BLUE
+    team: z.string().optional(),
+
+    // AIR
+    emergencyDetail: z.string().optional(),
+
+    // RED
+    COGRID: z.boolean().optional(),
+    firefighterCalledTime: z.string().optional(),
+
+    // LEAK
+    patientName: z.string().optional(),
+    patientDescription: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.isClosed && !data.closedBy?.trim()) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Debe indicar quién finaliza el código",
+      path: ["closedBy"],
+    }
+  );
 
 type FormValues = z.infer<typeof schema>;
 
@@ -70,16 +105,28 @@ interface Props {
   onSuccess?: () => void;
 }
 
+const getCodeTypeName = (type: CodeType) => {
+  switch (type) {
+    case "GREEN":
+      return "Verde";
+    case "BLUE":
+      return "Azul";
+    case "AIR":
+      return "Aéreo";
+    case "RED":
+      return "Rojo";
+    case "LEAK":
+      return "de Fuga";
+    default:
+      return type;
+  }
+};
+
 export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const { data: operators, isLoading: isLoadingOperators } = useOperator();
-
-  const getLocalDate = (isoString?: string) => {
-    if (!isoString) return new Date().toISOString().slice(0, 16);
-    return new Date(isoString).toISOString().slice(0, 16);
-  };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -88,18 +135,22 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
       operatorId: initialData?.operatorId || "",
       activeBy: initialData?.activeBy || "",
       location: initialData?.location || "",
-      activationTime: getLocalDate(initialData?.activationTime),
+      activationTime: getLocalDateTimeString(initialData?.activationTime),
       observations: initialData?.observations || "",
-      
+
       event: initialData?.event || "",
-      police: initialData?.police || false,
-      isClosed: initialData?.isClosed || false,
+      police: initialData?.police ?? false,
+      isClosed: initialData?.isClosed ?? false,
       closedBy: initialData?.closedBy || "",
-      closedAt: initialData?.closedAt ? getLocalDate(initialData.closedAt) : "",
+      closedAt: initialData?.closedAt
+        ? getLocalDateTimeString(initialData.closedAt)
+        : "",
       team: initialData?.team || "",
       emergencyDetail: initialData?.emergencyDetail || "",
-      COGRID: initialData?.COGRID || false,
-      firefighterCalledTime: initialData?.firefighterCalledTime ? getLocalDate(initialData.firefighterCalledTime) : "",
+      COGRID: initialData?.COGRID ?? false,
+      firefighterCalledTime: initialData?.firefighterCalledTime
+        ? getLocalDateTimeString(initialData.firefighterCalledTime)
+        : "",
       patientName: initialData?.patientName || "",
       patientDescription: initialData?.patientDescription || "",
     },
@@ -108,62 +159,61 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
   const onSubmit = async (values: FormValues) => {
     try {
       setIsLoading(true);
-      
-      const payload: any = {
+
+      const payload: Record<string, any> = {
         type: values.type,
         operatorId: values.operatorId,
         activeBy: values.activeBy,
         location: values.location,
         activationTime: new Date(values.activationTime).toISOString(),
-        observations: values.observations,
+        observations: values.observations || null,
       };
 
-      // Inyectar campos específicos
+      // Inyectar campos específicos según el tipo
       if (type === "GREEN") {
-        payload.event = values.event;
-        payload.police = values.police;
-        payload.isClosed = values.isClosed;
+        payload.event = values.event || null;
+        payload.police = Boolean(values.police);
+        payload.isClosed = Boolean(values.isClosed);
         if (values.isClosed) {
-          payload.closedBy = values.closedBy;
-          if (values.closedAt) {
-            payload.closedAt = new Date(values.closedAt).toISOString();
-          }
+          payload.closedBy = values.closedBy?.trim() || null;
+          payload.closedAt = values.closedAt
+            ? new Date(values.closedAt).toISOString()
+            : new Date().toISOString();
         }
       } else if (type === "BLUE") {
-        payload.team = values.team;
+        payload.team = values.team || null;
       } else if (type === "AIR") {
-        payload.emergencyDetail = values.emergencyDetail;
+        payload.emergencyDetail = values.emergencyDetail || null;
       } else if (type === "RED") {
-        payload.COGRID = values.COGRID;
-        if (values.firefighterCalledTime) {
-          payload.firefighterCalledTime = new Date(values.firefighterCalledTime).toISOString();
-        }
+        payload.COGRID = Boolean(values.COGRID);
+        payload.firefighterCalledTime = values.firefighterCalledTime
+          ? new Date(values.firefighterCalledTime).toISOString()
+          : null;
       } else if (type === "LEAK") {
-        payload.patientName = values.patientName;
-        payload.patientDescription = values.patientDescription;
+        payload.patientName = values.patientName || null;
+        payload.patientDescription = values.patientDescription || null;
       }
 
       if (initialData?.id) {
         await emergency_codes.patch(initialData.id, payload);
-        toast.success("Emergencia actualizada correctamente");
+        toast.success("Código de emergencia actualizado correctamente");
       } else {
         await emergency_codes.post(payload);
-        toast.success("Emergencia registrada correctamente");
+        toast.success(`Código ${getCodeTypeName(type)} creado exitosamente`);
       }
-      
-      // Invalidar la caché para forzar la recarga de la tabla
+
+      // Invalidar la caché de React Query para refrescar la tabla al instante
       queryClient.invalidateQueries({ queryKey: [QueryKeys.EmergencyCodes] });
-      
+
       router.refresh();
-      if (onSuccess) onSuccess();
-      
-      // Si es una creación nueva, redirigir a la lista
-      if (!initialData?.id) {
+      if (onSuccess) {
+        onSuccess();
+      } else if (!initialData?.id) {
         router.push(`/code-${type.toLowerCase()}`);
       }
     } catch (error) {
-      toast.error("Ocurrió un error al procesar la solicitud");
-      console.error(error);
+      console.error("Error al procesar la solicitud:", error);
+      toast.error("Ocurrió un error al guardar la emergencia");
     } finally {
       setIsLoading(false);
     }
@@ -171,152 +221,376 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          
-          <FormField
-            control={form.control}
-            name="activationTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Fecha y Hora</FormLabel>
-                <FormControl>
-                  <Input type="datetime-local" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="operatorId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Operador</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccione un operador" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {!isLoadingOperators &&
-                      operators?.map((op) => (
-                        <SelectItem key={op.id} value={op.id}>
-                          {op.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="activeBy"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Activado por</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre de quien activa" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ubicación</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej. Piso 3, Sala 2" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* CAMPOS CONDICIONALES POR TIPO */}
-        {type === "GREEN" && (
-          <div className="grid grid-cols-2 gap-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* SECCIÓN 1: DATOS GENERALES */}
+        <Card className="shadow-xs border-border/80">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" />
+              Información General de la Emergencia
+            </CardTitle>
+            <CardDescription>
+              Complete los datos del reporte inicial y la ubicación del evento.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* FECHA Y HORA MANUAL */}
             <FormField
               control={form.control}
-              name="event"
+              name="activationTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Evento</FormLabel>
+                  <FormLabel className="flex items-center gap-1.5 font-medium">
+                    <CalendarClock className="w-3.5 h-3.5 text-muted-foreground" />
+                    Fecha y Hora de Activación (Manual)
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Detalle del evento" {...field} />
+                    <Input type="datetime-local" {...field} />
+                  </FormControl>
+                  <FormDescription className="text-xs">
+                    Hora precisa en que se reportó la alerta.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* OPERADOR */}
+            <FormField
+              control={form.control}
+              name="operatorId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1.5 font-medium">
+                    <UserCheck className="w-3.5 h-3.5 text-muted-foreground" />
+                    Operador en Turno
+                  </FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Seleccione un operador..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {!isLoadingOperators &&
+                        operators?.map((op) => (
+                          <SelectItem key={op.id} value={op.id}>
+                            {op.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* ACTIVADO POR */}
+            <FormField
+              control={form.control}
+              name="activeBy"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1.5 font-medium">
+                    <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                    Activado por
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Nombre o cargo de quien solicita la activación"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* UBICACIÓN */}
             <FormField
               control={form.control}
-              name="police"
+              name="location"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1.5 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
+                    Ubicación del Suceso
+                  </FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
+                    <Input
+                      placeholder="Ej. Torre A, Piso 3, Sala de Procedimientos"
+                      {...field}
                     />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Presencia de Carabineros</FormLabel>
-                  </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
-            {initialData?.id && (
-              <div className="col-span-2 space-y-4 rounded-md border p-4 bg-muted/20">
+          </CardContent>
+        </Card>
+
+        {/* SECCIÓN 2: CAMPOS ESPECÍFICOS SEGÚN EL TIPO DE CÓDIGO */}
+        <Card className="shadow-xs border-border/80">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-amber-500" />
+              Detalles Específicos del Código {getCodeTypeName(type)}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* CÓDIGO VERDE */}
+            {type === "GREEN" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <FormField
                   control={form.control}
-                  name="isClosed"
+                  name="event"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormItem>
+                      <FormLabel>Detalle del Evento</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ej. Agresión verbal, hurto, riña..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="police"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3.5 shadow-2xs">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium">
+                          Presencia de Carabineros
+                        </FormLabel>
+                        <FormDescription className="text-xs">
+                          ¿Se requirió presencia o llamada policial?
+                        </FormDescription>
+                      </div>
                       <FormControl>
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Finalizar Código Verde</FormLabel>
-                      </div>
                     </FormItem>
                   )}
                 />
-                
+              </div>
+            )}
+
+            {/* CÓDIGO AZUL */}
+            {type === "BLUE" && (
+              <FormField
+                control={form.control}
+                name="team"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Equipo de Reanimación Asignado</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione el equipo médico" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Equipo urgencia">
+                          Equipo Urgencia
+                        </SelectItem>
+                        <SelectItem value="Equipo UCI">Equipo UCI</SelectItem>
+                        <SelectItem value="Equipo UCI pediatrica">
+                          Equipo UCI Pediátrica
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* CÓDIGO AÉREO */}
+            {type === "AIR" && (
+              <FormField
+                control={form.control}
+                name="emergencyDetail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Detalle de la Emergencia Aérea</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        rows={3}
+                        placeholder="Describa el aterrizaje/despegue, condición de helipuerto, tipo de aeronave o paciente en traslado..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* CÓDIGO ROJO */}
+            {type === "RED" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <FormField
+                  control={form.control}
+                  name="firefighterCalledTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-1.5 font-medium">
+                        <CalendarClock className="w-3.5 h-3.5 text-destructive" />
+                        Llamado a Bomberos (Hora Manual)
+                      </FormLabel>
+                      <FormControl>
+                        <Input type="datetime-local" {...field} />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Hora exacta del contacto con la central de bomberos.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="COGRID"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3.5 shadow-2xs">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium">
+                          Activación COGRID
+                        </FormLabel>
+                        <FormDescription className="text-xs">
+                          Comité para la Gestión del Riesgo y Desastres.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
+            {/* CÓDIGO FUGA */}
+            {type === "LEAK" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <FormField
+                  control={form.control}
+                  name="patientName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombre del Paciente (Opcional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Nombre y apellidos si se conocen"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="patientDescription"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Descripción del Paciente y Vestimenta</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          rows={3}
+                          placeholder="Características físicas, ropa que vestía, última dirección vista..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
+            {/* SECCIÓN DE CIERRE (Disponible en edición o para Código Verde) */}
+            {initialData?.id && (
+              <div className="mt-4 pt-4 border-t space-y-4 bg-muted/20 p-4 rounded-lg">
+                <FormField
+                  control={form.control}
+                  name="isClosed"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-semibold flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          Finalizar / Dar por Concluida la Emergencia
+                        </FormLabel>
+                        <FormDescription className="text-xs">
+                          Marque para cerrar el ciclo de este código.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            if (checked && !form.getValues("closedAt")) {
+                              form.setValue(
+                                "closedAt",
+                                getLocalDateTimeString()
+                              );
+                            }
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
                 {form.watch("isClosed") && (
-                  <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                     <FormField
                       control={form.control}
                       name="closedBy"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Finalizado por</FormLabel>
+                          <FormLabel>
+                            Finalizado por{" "}
+                            <span className="text-destructive">*</span>
+                          </FormLabel>
                           <FormControl>
-                            <Input placeholder="Nombre de quien finaliza" {...field} />
+                            <Input
+                              placeholder="Nombre de quien dio por finalizado"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
                       name="closedAt"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Fecha y Hora de Cierre</FormLabel>
+                          <FormLabel>
+                            Fecha y Hora de Cierre (Manual){" "}
+                            <span className="text-destructive">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input type="datetime-local" {...field} />
                           </FormControl>
@@ -328,132 +602,47 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
                 )}
               </div>
             )}
-          </div>
-        )}
+          </CardContent>
+        </Card>
 
-        {type === "BLUE" && (
-          <FormField
-            control={form.control}
-            name="team"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Equipo de Reanimación</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccione el equipo" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Equipo urgencia">Equipo urgencia</SelectItem>
-                    <SelectItem value="Equipo UCI">Equipo UCI</SelectItem>
-                    <SelectItem value="Equipo UCI pediatrica">Equipo UCI pediátrica</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {type === "AIR" && (
-          <FormField
-            control={form.control}
-            name="emergencyDetail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Detalle de la Emergencia</FormLabel>
-                <FormControl>
-                  <Input placeholder="Detalle" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {type === "RED" && (
-          <div className="grid grid-cols-2 gap-4">
+        {/* SECCIÓN 3: OBSERVACIONES */}
+        <Card className="shadow-xs border-border/80">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base font-semibold">
+              Observaciones Adicionales
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <FormField
               control={form.control}
-              name="firefighterCalledTime"
+              name="observations"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Llamado a Bomberos (Hora)</FormLabel>
                   <FormControl>
-                    <Input type="datetime-local" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="COGRID"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
+                    <Textarea
+                      rows={3}
+                      placeholder="Escriba aquí cualquier antecedente clínico, derivación, coordinación externa o detalle relevante..."
+                      {...field}
                     />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>COGRID</FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
-          </div>
-        )}
-
-        {type === "LEAK" && (
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="patientName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre del Paciente</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Opcional" {...field} />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="patientDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Descripción física..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        )}
+          </CardContent>
+        </Card>
 
-        <FormField
-          control={form.control}
-          name="observations"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Observaciones</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Observaciones adicionales..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Guardando..." : initialData ? "Actualizar Registro" : "Registrar Código"}
+        {/* BOTÓN DE SUBMIT */}
+        <Button
+          type="submit"
+          className="w-full text-base py-5 font-semibold transition-all"
+          disabled={isLoading}
+        >
+          {isLoading
+            ? "Guardando..."
+            : initialData
+            ? "Actualizar código"
+            : `Crear código ${getCodeTypeName(type).toLowerCase()}`}
         </Button>
       </form>
     </Form>

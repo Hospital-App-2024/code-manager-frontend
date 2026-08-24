@@ -1,8 +1,9 @@
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import { PdfRender } from "../components/utils/PdfRender";
 import { SearchDate } from "../components/search/SearchDate";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
 import EmergencyCodeTable from "../components/table/EmergencyCodeTable";
 
 interface Props {
@@ -14,14 +15,14 @@ interface Props {
   }>;
 }
 
-export default async function Page(props: Props) {
+export default async function CodeBluePage(props: Props) {
   const searchParams = await props.searchParams;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 5;
 
   return (
-    <div className="">
-      <div className="flex gap-2 mb-2 justify-between flex-wrap">
+    <div>
+      <div className="flex gap-2 mb-4 justify-between flex-wrap items-center">
         <div className="flex gap-2">
           <PdfRender
             url="/emergency-codes/report?type=BLUE"
@@ -31,7 +32,7 @@ export default async function Page(props: Props) {
           <Link href="/code-blue/create">
             <Button className="flex items-center gap-2">
               <PlusIcon className="w-4 h-4" />
-              Activar código azul
+              Crear código azul
             </Button>
           </Link>
         </div>
