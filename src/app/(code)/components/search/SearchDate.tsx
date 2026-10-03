@@ -1,110 +1,92 @@
 "use client";
 
-import * as React from "react";
-import { FaCalendarAlt } from "react-icons/fa";
-import { format } from "date-fns";
-// import { DateRange } from "react-day-picker";
-
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { IoSearch } from "react-icons/io5";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 
-import { es } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-export function SearchDate({
-  className,
-}: React.HTMLAttributes<HTMLDivElement>) {
+// Filtro por rango de fechas de activación. El rango vive en la URL ("from" y "to",
+// como YYYY-MM-DD): la tabla y el reporte PDF leen los mismos parámetros.
+export function SearchDate() {
   const searchParams = useSearchParams();
-  const pathName = usePathname();
-  const route = useRouter();
+  const pathname = usePathname();
+  const router = useRouter();
 
-  const { replace } = useRouter();
+  const urlFrom = searchParams.get("from") ?? "";
+  const urlTo = searchParams.get("to") ?? "";
 
-  // const [date, setDate] = React.useState<DateRange | undefined>({
-  //   from: undefined,
-  //   to: undefined,
-  // });
+  // Estado local para que el campo no se borre mientras la URL se actualiza.
+  const [from, setFrom] = useState(urlFrom);
+  const [to, setTo] = useState(urlTo);
 
-  // const handleSelect = ({ from, to }: DateRange) => {
-  //   if (!from || !to) {
-  //     toast.error("Seleccione un rango de fechas");
-  //     return;
-  //   }
+  useEffect(() => {
+    setFrom(urlFrom);
+    setTo(urlTo);
+  }, [urlFrom, urlTo]);
 
-  //   const formatFrom = format(from, "yyyy-MM-dd");
-  //   const formatTo = format(to, "yyyy-MM-dd");
+  const applyRange = (nextFrom: string, nextTo: string) => {
+    if (nextFrom && nextTo && nextFrom > nextTo) {
+      toast.error("La fecha \"Desde\" no puede ser posterior a \"Hasta\"");
+      return;
+    }
 
-  //   const params = new URLSearchParams(searchParams);
-  //   params.set("from", formatFrom);
-  //   params.set("to", formatTo);
-  //   replace(`${pathName}?${params}`);
-  // };
+    setFrom(nextFrom);
+    setTo(nextTo);
 
-  // const reset = () => {
-  //   setDate({ from: undefined, to: undefined });
-  //   const params = new URLSearchParams(searchParams);
-  //   params.delete("from");
-  //   params.delete("to");
-  //   replace(`${pathName}?${params.toString()}`);
-  // };
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextFrom) params.set("from", nextFrom);
+    else params.delete("from");
+    if (nextTo) params.set("to", nextTo);
+    else params.delete("to");
+    // El rango cambia el total de resultados: se vuelve a la primera página.
+    params.delete("page");
+
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
+  };
 
   return (
-    <div className="flex gap-4 flex-wrap">
-      <div className={cn("grid gap-2", className)}>
-        <Popover>
-          {/* <PopoverTrigger asChild>
-            <Button
-              id="date"
-              variant={"outline"}
-              className={cn(
-                "w-[300px] justify-start text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
-            >
-              <FaCalendarAlt className="mr-2 h-4 w-4" />
-              {date?.from ? (
-                date.to ? (
-                  <>
-                    {format(date.from, "LLL dd, y", { locale: es })} -{" "}
-                    {format(date.to, "LLL dd, y", { locale: es })}
-                  </>
-                ) : (
-                  format(date.from, "LLL dd, y", { locale: es })
-                )
-              ) : (
-                <span>Seleccionar rango de fechas</span>
-              )}
-            </Button>
-          </PopoverTrigger> */}
-          <PopoverContent className="w-auto p-0" align="start">
-            {/* <Calendar
-              initialFocus
-              locale={es}
-              mode="range"
-              defaultMonth={date?.from}
-              selected={date}
-              onSelect={setDate}
-              numberOfMonths={2}
-            /> */}
-          </PopoverContent>
-        </Popover>
+    <div className="flex flex-wrap items-end gap-3">
+      <div className="grid gap-1.5">
+        <Label htmlFor="filter-from" className="text-xs text-muted-foreground">
+          Desde
+        </Label>
+        <Input
+          id="filter-from"
+          type="date"
+          className="w-40"
+          value={from}
+          max={to || undefined}
+          onChange={(e) => applyRange(e.target.value, to)}
+        />
       </div>
-      <div className="flex gap-2">
-        {/* <Button onClick={() => handleSelect(date!)} disabled={!date}>
-          <IoSearch className="h-4 w-4" />
-        </Button>
-        <Button onClick={reset} variant="destructive">
+      <div className="grid gap-1.5">
+        <Label htmlFor="filter-to" className="text-xs text-muted-foreground">
+          Hasta
+        </Label>
+        <Input
+          id="filter-to"
+          type="date"
+          className="w-40"
+          value={to}
+          min={from || undefined}
+          onChange={(e) => applyRange(from, e.target.value)}
+        />
+      </div>
+      {(from || to) && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => applyRange("", "")}
+        >
+          <X className="h-4 w-4" />
           Limpiar
-        </Button> */}
-      </div>
+        </Button>
+      )}
     </div>
   );
 }

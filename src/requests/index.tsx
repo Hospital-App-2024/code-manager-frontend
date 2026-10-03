@@ -1,6 +1,7 @@
 "use client";
 import { getSession } from "next-auth/react";
 import { ResponseEmergencyCode, CodeType } from "@/interfaces/emergencyCode.interface";
+import { toRangeBounds } from "@/lib/date-range";
 
 export interface QueryParams {
   limit?: number;
@@ -28,7 +29,11 @@ export const buildUrlWithParams = (baseUrl: string, searchParams?: unknown) => {
 export const emergency_codes = {
   get: async (params: QueryParams): Promise<ResponseEmergencyCode> => {
     const session = await getSession();
-    const url = buildUrlWithParams(endpoint, params);
+    const { from, to, ...rest } = params;
+    const url = buildUrlWithParams(endpoint, {
+      ...rest,
+      ...toRangeBounds({ from, to }),
+    });
 
     const resp = await fetch(url, {
       method: "GET",
@@ -89,7 +94,10 @@ export const emergency_codes = {
     params?: { from?: string; to?: string }
   ): Promise<Blob> => {
     const session = await getSession();
-    const url = buildUrlWithParams(`${endpoint}/report`, { type, ...params });
+    const url = buildUrlWithParams(`${endpoint}/report`, {
+      type,
+      ...toRangeBounds(params ?? {}),
+    });
 
     const resp = await fetch(url, {
       method: "GET",
