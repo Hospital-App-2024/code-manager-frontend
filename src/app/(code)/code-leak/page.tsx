@@ -25,7 +25,7 @@ export default async function CodeLeakPage(props: Props) {
       <div className="flex gap-2 mb-4 justify-between flex-wrap items-center">
         <div className="flex gap-2">
           <PdfRender
-            url="/emergency-codes/report?type=LEAK"
+            type="LEAK"
             from={searchParams.from}
             to={searchParams.to}
           />

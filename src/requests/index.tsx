@@ -81,4 +81,28 @@ export const emergency_codes = {
 
     return await resp.json();
   },
+
+  // El reporte exige el token, que un <iframe> o un enlace directo no pueden enviar:
+  // se pide con fetch y se entrega como Blob.
+  report: async (
+    type: CodeType,
+    params?: { from?: string; to?: string }
+  ): Promise<Blob> => {
+    const session = await getSession();
+    const url = buildUrlWithParams(`${endpoint}/report`, { type, ...params });
+
+    const resp = await fetch(url, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        authorization: `Bearer ${session?.token}`,
+      },
+    });
+
+    if (!resp.ok) {
+      throw new Error(`Error generating report: ${resp.statusText}`);
+    }
+
+    return await resp.blob();
+  },
 };

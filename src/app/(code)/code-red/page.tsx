@@ -25,7 +25,7 @@ export default async function CodeRedPage(props: Props) {
       <div className="flex gap-2 mb-4 justify-between flex-wrap items-center">
         <div className="flex gap-2">
           <PdfRender
-            url="/emergency-codes/report?type=RED"
+            type="RED"
             from={searchParams.from}
             to={searchParams.to}
           />
