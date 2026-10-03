@@ -33,6 +33,7 @@ import { UserStatusToggle } from "@/app/admin/components/form/UserStatusToggle";
 import { EmergencyCode } from "@/interfaces/emergencyCode.interface";
 import { User } from "@/interfaces/user.interface";
 import { Operator } from "@/interfaces/operator.interface";
+import { formatBlueTeams, isCodeClosed } from "@/lib/emergency-code";
 
 // Utility for formatting dates
 const formatDate = (isoStr?: string | null) => {
@@ -55,11 +56,12 @@ const ActionCell = ({
   codeType: "GREEN" | "BLUE" | "AIR" | "RED" | "LEAK";
 }) => {
   const item = row.original as EmergencyCode;
+  const isClosed = isCodeClosed(item);
 
   return (
     <div className="flex items-center gap-1.5 justify-end">
       {/* Solo los códigos verdes poseen ciclo de cierre. */}
-      {!item.isClosed && codeType === "GREEN" && (
+      {!isClosed && codeType === "GREEN" && (
         <CloseCodeModal item={item} />
       )}
 
@@ -120,18 +122,24 @@ const ActionCell = ({
                     <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
                       <span className="font-semibold text-muted-foreground">Estado:</span>
                       <span className="col-span-2">
-                        {item.isClosed
+                        {isClosed
                           ? `Finalizado por ${item.closedBy || "Anónimo"} (${formatDate(item.closedAt)})`
                           : "En curso / Activo"}
                       </span>
                     </div>
+                    {isClosed && (
+                      <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
+                        <span className="font-semibold text-muted-foreground">Cierre registrado por:</span>
+                        <span className="col-span-2">{item.closedByOperator?.name || "N/A"}</span>
+                      </div>
+                    )}
                   </>
                 )}
 
                 {codeType === "BLUE" && (
                   <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                    <span className="font-semibold text-muted-foreground">Equipo Médico:</span>
-                    <span className="col-span-2">{item.team || "N/A"}</span>
+                    <span className="font-semibold text-muted-foreground">Equipos Médicos:</span>
+                    <span className="col-span-2">{formatBlueTeams(item.teams)}</span>
                   </div>
                 )}
 
@@ -146,8 +154,14 @@ const ActionCell = ({
                   <>
                     <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
                       <span className="font-semibold text-muted-foreground">COGRID:</span>
-                      <span className="col-span-2">{item.COGRID ? "Sí" : "No"}</span>
+                      <span className="col-span-2">{item.cogridNotified ? "Sí" : "No"}</span>
                     </div>
+                    {item.cogridNotified && (
+                      <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
+                        <span className="font-semibold text-muted-foreground">Hora COGRID:</span>
+                        <span className="col-span-2">{formatDate(item.cogridNotifiedAt)}</span>
+                      </div>
+                    )}
                     <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
                       <span className="font-semibold text-muted-foreground">Bomberos:</span>
                       <span className="col-span-2">
@@ -187,7 +201,7 @@ const ActionCell = ({
             <DialogTrigger asChild>
               <DropdownMenuItem
                 onSelect={(e) => e.preventDefault()}
-                disabled={item.isClosed || false}
+                disabled={isClosed}
               >
                 <SquarePenIcon className="mr-2 h-4 w-4" /> Editar
               </DropdownMenuItem>
@@ -218,7 +232,11 @@ export const codeBlueColumns: ColumnDef<EmergencyCode>[] = [
       </span>
     ),
   },
-  { accessorKey: "team", header: "Equipo de Reanimación" },
+  {
+    accessorKey: "teams",
+    header: "Equipos de Reanimación",
+    cell: ({ row }) => <span>{formatBlueTeams(row.original.teams)}</span>,
+  },
   {
     accessorKey: "location",
     header: "Ubicación",
@@ -263,10 +281,10 @@ export const codeGreenColumns: ColumnDef<EmergencyCode>[] = [
     ),
   },
   {
-    accessorKey: "isClosed",
+    accessorKey: "closedAt",
     header: "Estado",
     cell: ({ row }) => {
-      const isClosed = row.original.isClosed;
+      const isClosed = isCodeClosed(row.original);
       return (
         <span
           className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
@@ -308,18 +326,25 @@ export const codeRedColumns: ColumnDef<EmergencyCode>[] = [
     ),
   },
   {
-    accessorKey: "COGRID",
+    accessorKey: "cogridNotified",
     header: "COGRID",
     cell: ({ row }) => (
-      <span
-        className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-          row.original.COGRID
-            ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
-            : "bg-muted text-muted-foreground"
-        }`}
-      >
-        {row.original.COGRID ? "Sí" : "No"}
-      </span>
+      <div className="flex flex-col items-start gap-1">
+        <span
+          className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+            row.original.cogridNotified
+              ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
+              : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {row.original.cogridNotified ? "Sí" : "No"}
+        </span>
+        {row.original.cogridNotified && row.original.cogridNotifiedAt && (
+          <span className="text-xs text-muted-foreground">
+            {formatDate(row.original.cogridNotifiedAt)}
+          </span>
+        )}
+      </div>
     ),
   },
   {

@@ -1,5 +1,7 @@
 export type CodeType = "GREEN" | "BLUE" | "AIR" | "RED" | "LEAK";
 
+export type BlueTeam = "EMERGENCY" | "ICU" | "PEDIATRIC_ICU";
+
 export interface ResponseEmergencyCode {
   data: EmergencyCode[];
   meta: Meta;
@@ -16,21 +18,26 @@ export interface EmergencyCode {
   observations?: string | null;
   operator: Operator;
 
-  // Solo GREEN posee ciclo de cierre; en otros tipos estos campos son null.
   event?: string | null;
   police?: boolean | null;
-  isClosed?: boolean | null;
+
+  // Solo GREEN posee ciclo de cierre; en otros tipos estos campos son null.
+  // Un código está cerrado cuando tiene closedAt. Los cierres anteriores a
+  // closedByOperatorId no registran qué operador los ingresó.
   closedBy?: string | null;
   closedAt?: string | null;
+  closedByOperatorId?: string | null;
+  closedByOperator?: Operator | null;
 
-  // Code Blue Fields
-  team?: string | null;
+  // Code Blue Fields (uno o más equipos; vacío en los demás tipos)
+  teams?: BlueTeam[];
 
   // Code Air Fields
   emergencyDetail?: string | null;
 
   // Code Red Fields
-  COGRID?: boolean | null;
+  cogridNotified?: boolean | null;
+  cogridNotifiedAt?: string | null;
   firefighterCalledTime?: string | null;
 
   // Code Leak Fields

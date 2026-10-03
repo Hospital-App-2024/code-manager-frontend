@@ -40,6 +40,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import { useOperator } from "@/hooks/use-operator";
+import { BLUE_TEAMS } from "@/lib/emergency-code";
 import { emergency_codes } from "@/requests";
 
 import { CodeType, EmergencyCode } from "@/interfaces/emergencyCode.interface";
@@ -66,36 +67,39 @@ const schema = z
     // GREEN
     event: z.string().optional(),
     police: z.boolean().optional(),
-    isClosed: z.boolean().optional(),
+    // Solo del formulario: indica que se quiere cerrar el código al guardar.
+    closeCode: z.boolean().optional(),
     closedBy: z.string().optional(),
     closedAt: z.string().optional(),
+    closedByOperatorId: z.string().optional(),
 
     // BLUE
-    team: z.string().optional(),
+    teams: z.array(z.enum(["EMERGENCY", "ICU", "PEDIATRIC_ICU"])),
 
     // AIR
     emergencyDetail: z.string().optional(),
 
     // RED
-    COGRID: z.boolean().optional(),
+    cogridNotified: z.boolean().optional(),
+    cogridNotifiedAt: z.string().optional(),
     firefighterCalledTime: z.string().optional(),
 
     // LEAK
     patientName: z.string().optional(),
     patientDescription: z.string().optional(),
   })
-  .refine(
-    (data) => {
-      if (data.isClosed && !data.closedBy?.trim()) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: "Debe indicar quién finaliza el código",
-      path: ["closedBy"],
-    }
-  );
+  .refine((data) => data.type !== "BLUE" || data.teams.length > 0, {
+    message: "Seleccione al menos un equipo",
+    path: ["teams"],
+  })
+  .refine((data) => !data.closeCode || Boolean(data.closedBy?.trim()), {
+    message: "Debe indicar quién finaliza el código",
+    path: ["closedBy"],
+  })
+  .refine((data) => !data.closeCode || Boolean(data.closedByOperatorId), {
+    message: "Debe seleccionar el operador que registra el cierre",
+    path: ["closedByOperatorId"],
+  });
 
 type FormValues = z.infer<typeof schema>;
 
@@ -140,14 +144,18 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
 
       event: initialData?.event || "",
       police: initialData?.police ?? false,
-      isClosed: initialData?.isClosed ?? false,
+      closeCode: false,
       closedBy: initialData?.closedBy || "",
       closedAt: initialData?.closedAt
         ? getLocalDateTimeString(initialData.closedAt)
         : "",
-      team: initialData?.team || "",
+      closedByOperatorId: initialData?.closedByOperatorId || "",
+      teams: initialData?.teams ?? [],
       emergencyDetail: initialData?.emergencyDetail || "",
-      COGRID: initialData?.COGRID ?? false,
+      cogridNotified: initialData?.cogridNotified ?? false,
+      cogridNotifiedAt: initialData?.cogridNotifiedAt
+        ? getLocalDateTimeString(initialData.cogridNotifiedAt)
+        : "",
       firefighterCalledTime: initialData?.firefighterCalledTime
         ? getLocalDateTimeString(initialData.firefighterCalledTime)
         : "",
@@ -161,7 +169,8 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
       setIsLoading(true);
 
       const payload: Record<string, any> = {
-        type: values.type,
+        // El tipo solo se envía al crear: la API no permite cambiarlo.
+        ...(!initialData?.id && { type: values.type }),
         operatorId: values.operatorId,
         activeBy: values.activeBy,
         location: values.location,
@@ -173,19 +182,24 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
       if (type === "GREEN") {
         payload.event = values.event || null;
         payload.police = Boolean(values.police);
-        payload.isClosed = Boolean(values.isClosed);
-        if (values.isClosed) {
-          payload.closedBy = values.closedBy?.trim() || null;
+        // El código se cierra enviando los tres datos de cierre juntos.
+        if (values.closeCode) {
+          payload.closedBy = values.closedBy?.trim();
           payload.closedAt = values.closedAt
             ? new Date(values.closedAt).toISOString()
             : new Date().toISOString();
+          payload.closedByOperatorId = values.closedByOperatorId;
         }
       } else if (type === "BLUE") {
-        payload.team = values.team || null;
+        payload.teams = values.teams;
       } else if (type === "AIR") {
         payload.emergencyDetail = values.emergencyDetail || null;
       } else if (type === "RED") {
-        payload.COGRID = Boolean(values.COGRID);
+        payload.cogridNotified = Boolean(values.cogridNotified);
+        payload.cogridNotifiedAt =
+          values.cogridNotified && values.cogridNotifiedAt
+            ? new Date(values.cogridNotifiedAt).toISOString()
+            : null;
         payload.firefighterCalledTime = values.firefighterCalledTime
           ? new Date(values.firefighterCalledTime).toISOString()
           : null;
@@ -387,29 +401,47 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
             {type === "BLUE" && (
               <FormField
                 control={form.control}
-                name="team"
-                render={({ field }) => (
+                name="teams"
+                render={() => (
                   <FormItem>
-                    <FormLabel>Equipo de Reanimación Asignado</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione el equipo médico" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Equipo urgencia">
-                          Equipo Urgencia
-                        </SelectItem>
-                        <SelectItem value="Equipo UCI">Equipo UCI</SelectItem>
-                        <SelectItem value="Equipo UCI pediatrica">
-                          Equipo UCI Pediátrica
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Equipos de Reanimación que Responden</FormLabel>
+                    <FormDescription className="text-xs">
+                      Seleccione uno o más equipos.
+                    </FormDescription>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                      {BLUE_TEAMS.map((team) => (
+                        <FormField
+                          key={team.value}
+                          control={form.control}
+                          name="teams"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center gap-3 space-y-0 rounded-lg border p-3.5 shadow-2xs">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value.includes(team.value)}
+                                  onCheckedChange={(checked) => {
+                                    const selected = checked
+                                      ? [...field.value, team.value]
+                                      : field.value.filter(
+                                          (value) => value !== team.value
+                                        );
+                                    // Siempre en el orden canónico de BLUE_TEAMS.
+                                    field.onChange(
+                                      BLUE_TEAMS.map(({ value }) => value).filter(
+                                        (value) => selected.includes(value)
+                                      )
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="font-normal cursor-pointer">
+                                {team.label}
+                              </FormLabel>
+                            </FormItem>
+                          )}
+                        />
+                      ))}
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -462,12 +494,12 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
 
                 <FormField
                   control={form.control}
-                  name="COGRID"
+                  name="cogridNotified"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3.5 shadow-2xs">
                       <div className="space-y-0.5">
                         <FormLabel className="text-sm font-medium">
-                          Activación COGRID
+                          Comunicación con COGRID
                         </FormLabel>
                         <FormDescription className="text-xs">
                           Comité para la Gestión del Riesgo y Desastres.
@@ -482,6 +514,28 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
                     </FormItem>
                   )}
                 />
+
+                {form.watch("cogridNotified") && (
+                  <FormField
+                    control={form.control}
+                    name="cogridNotifiedAt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-1.5 font-medium">
+                          <CalendarClock className="w-3.5 h-3.5 text-destructive" />
+                          Hora de Comunicación con COGRID (Opcional)
+                        </FormLabel>
+                        <FormControl>
+                          <Input type="datetime-local" {...field} />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                          Déjela en blanco si no se registró la hora.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             )}
 
@@ -530,7 +584,7 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
               <div className="mt-4 pt-4 border-t space-y-4 bg-muted/20 p-4 rounded-lg">
                 <FormField
                   control={form.control}
-                  name="isClosed"
+                  name="closeCode"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between">
                       <div className="space-y-0.5">
@@ -560,7 +614,7 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
                   )}
                 />
 
-                {form.watch("isClosed") && (
+                {form.watch("closeCode") && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                     <FormField
                       control={form.control}
@@ -594,6 +648,38 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
                           <FormControl>
                             <Input type="datetime-local" {...field} />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="closedByOperatorId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Operador que registra el cierre{" "}
+                            <span className="text-destructive">*</span>
+                          </FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Seleccione un operador..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {!isLoadingOperators &&
+                                operators?.map((op) => (
+                                  <SelectItem key={op.id} value={op.id}>
+                                    {op.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}

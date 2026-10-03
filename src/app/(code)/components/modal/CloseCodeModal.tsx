@@ -17,7 +17,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
+import { useOperator } from "@/hooks/use-operator";
 import { emergency_codes } from "@/requests";
 
 import { EmergencyCode } from "@/interfaces/emergencyCode.interface";
@@ -32,6 +40,7 @@ export function CloseCodeModal({ item, trigger }: Props) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { data: operators, isLoading: isLoadingOperators } = useOperator();
 
   const getLocalDate = () => {
     const now = new Date();
@@ -43,6 +52,7 @@ export function CloseCodeModal({ item, trigger }: Props) {
 
   const [closedBy, setClosedBy] = useState("");
   const [closedAt, setClosedAt] = useState(getLocalDate());
+  const [closedByOperatorId, setClosedByOperatorId] = useState("");
 
   const handleClose = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,13 +64,17 @@ export function CloseCodeModal({ item, trigger }: Props) {
       toast.error("Debe ingresar la fecha y hora de cierre");
       return;
     }
+    if (!closedByOperatorId) {
+      toast.error("Debe seleccionar el operador que registra el cierre");
+      return;
+    }
 
     try {
       setIsLoading(true);
       await emergency_codes.patch(item.id, {
-        isClosed: true,
         closedBy: closedBy.trim(),
         closedAt: new Date(closedAt).toISOString(),
+        closedByOperatorId,
       });
 
       toast.success("Código finalizado correctamente");
@@ -133,6 +147,29 @@ export function CloseCodeModal({ item, trigger }: Props) {
               <p className="text-xs text-muted-foreground">
                 Puede editar manualmente la hora exacta si el cierre ocurrió previamente.
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="closedByOperatorId">
+                Operador que registra el cierre <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={closedByOperatorId}
+                onValueChange={setClosedByOperatorId}
+                disabled={isLoading}
+              >
+                <SelectTrigger id="closedByOperatorId" className="w-full">
+                  <SelectValue placeholder="Seleccione un operador..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {!isLoadingOperators &&
+                    operators?.map((op) => (
+                      <SelectItem key={op.id} value={op.id}>
+                        {op.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
