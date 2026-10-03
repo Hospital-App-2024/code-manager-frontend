@@ -446,7 +446,8 @@ export const userColumns: ColumnDef<User>[] = [
   {
     accessorKey: "createdAt",
     header: "Fecha Creación",
-    cell: ({ row }) => <div>{formatDate(String(row.original.createdAt))}</div>,
+    // El backend ya entrega la fecha formateada (DD/MM/YYYY, h:mm A): se muestra tal cual.
+    cell: ({ row }) => <div>{row.original.createdAt}</div>,
   },
   { accessorKey: "name", header: "Nombre" },
   { accessorKey: "email", header: "Email" },
