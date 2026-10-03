@@ -50,8 +50,10 @@ export interface Operator {
   name: string;
 }
 
+// Misma forma que devuelve createPagination en el backend.
 export interface Meta {
-  lastPage: number;
-  page: number;
-  total: number;
+  totalPages: number;
+  currentPage: number;
+  nextPage: number | null;
+  prevPage: number | null;
 }

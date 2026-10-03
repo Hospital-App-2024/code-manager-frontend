@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { CheckCircle2, Lock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -13,7 +13,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,11 +32,12 @@ import { QueryKeys } from "@/interfaces";
 
 interface Props {
   item: EmergencyCode;
-  trigger?: React.ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function CloseCodeModal({ item, trigger }: Props) {
-  const [open, setOpen] = useState(false);
+// Diálogo controlado: se abre desde la opción "Finalizar" del menú de acciones.
+export function CloseCodeModal({ item, open, onOpenChange }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const { data: operators, isLoading: isLoadingOperators } = useOperator();
@@ -53,6 +53,16 @@ export function CloseCodeModal({ item, trigger }: Props) {
   const [closedBy, setClosedBy] = useState("");
   const [closedAt, setClosedAt] = useState(getLocalDate());
   const [closedByOperatorId, setClosedByOperatorId] = useState("");
+
+  // Cada vez que se abre parte limpio y con la hora actual, no con la del momento
+  // en que se cargó la tabla.
+  useEffect(() => {
+    if (open) {
+      setClosedBy("");
+      setClosedAt(getLocalDate());
+      setClosedByOperatorId("");
+    }
+  }, [open]);
 
   const handleClose = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +89,7 @@ export function CloseCodeModal({ item, trigger }: Props) {
 
       toast.success("Código finalizado correctamente");
       queryClient.invalidateQueries({ queryKey: [QueryKeys.EmergencyCodes] });
-      setOpen(false);
+      onOpenChange(false);
     } catch (error) {
       console.error("Error al finalizar el código:", error);
       toast.error("No se pudo finalizar el código de emergencia");
@@ -89,19 +99,7 @@ export function CloseCodeModal({ item, trigger }: Props) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button
-            size="sm"
-            variant="outline"
-            className="text-amber-600 border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/50 flex items-center gap-1"
-          >
-            <Lock className="w-3.5 h-3.5" />
-            <span>Finalizar</span>
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleClose}>
           <DialogHeader>
@@ -177,7 +175,7 @@ export function CloseCodeModal({ item, trigger }: Props) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
               Cancelar

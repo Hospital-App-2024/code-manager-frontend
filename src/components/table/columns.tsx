@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { 
   CheckCircle2, 
   Clock, 
   EllipsisVerticalIcon, 
   EyeIcon, 
+  Lock,
   SquarePenIcon 
 } from "lucide-react";
 
@@ -16,7 +18,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -34,6 +35,7 @@ import { EmergencyCode } from "@/interfaces/emergencyCode.interface";
 import { User } from "@/interfaces/user.interface";
 import { Operator } from "@/interfaces/operator.interface";
 import { formatBlueTeams, isCodeClosed } from "@/lib/emergency-code";
+import { cn } from "@/lib/utils";
 
 // Utility for formatting dates
 const formatDate = (isoStr?: string | null) => {
@@ -47,6 +49,29 @@ const formatDate = (isoStr?: string | null) => {
   });
 };
 
+// Los textos libres se recortan a 2 líneas para no ensanchar ni alargar la tabla;
+// el texto completo se ve en "Ver detalles".
+const TruncatedText = ({ children }: { children?: React.ReactNode }) => (
+  <div className="max-w-xs whitespace-normal break-words line-clamp-2">
+    {children || "N/A"}
+  </div>
+);
+
+const DetailRow = ({
+  label,
+  children,
+  valueClassName,
+}: {
+  label: string;
+  children: React.ReactNode;
+  valueClassName?: string;
+}) => (
+  <div className="grid grid-cols-3 items-start gap-2 border-b pb-2">
+    <span className="font-semibold text-muted-foreground">{label}</span>
+    <span className={cn("col-span-2 break-words", valueClassName)}>{children}</span>
+  </div>
+);
+
 // Helper to render the Action Cell
 const ActionCell = ({
   row,
@@ -57,167 +82,139 @@ const ActionCell = ({
 }) => {
   const item = row.original as EmergencyCode;
   const isClosed = isCodeClosed(item);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [closeOpen, setCloseOpen] = useState(false);
+  // Solo los códigos verdes poseen ciclo de cierre.
+  const canClose = codeType === "GREEN" && !isClosed;
 
   return (
     <div className="flex items-center gap-1.5 justify-end">
-      {/* Solo los códigos verdes poseen ciclo de cierre. */}
-      {!isClosed && codeType === "GREEN" && (
-        <CloseCodeModal item={item} />
-      )}
-
-      <DropdownMenu>
+      {/* Los diálogos viven fuera del menú: al elegir una acción el menú se cierra
+          y el diálogo se abre controlado por estado. */}
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button size="icon" variant="ghost" className="h-8 w-8">
+          <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Acciones">
             <EllipsisVerticalIcon className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Acciones</DropdownMenuLabel>
           <DropdownMenuSeparator />
-
-          {/* VIEW DETAILS */}
-          <Dialog>
-            <DialogTrigger asChild>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <EyeIcon className="mr-2 h-4 w-4" /> Ver detalles
-              </DropdownMenuItem>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[480px]">
-              <DialogHeader>
-                <DialogTitle>Detalles del Código {codeType}</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-3 py-3 text-sm">
-                <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                  <span className="font-semibold text-muted-foreground">ID:</span>
-                  <span className="col-span-2 font-mono text-xs truncate">{item.id}</span>
-                </div>
-                <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                  <span className="font-semibold text-muted-foreground">Ubicación:</span>
-                  <span className="col-span-2 font-medium">{item.location}</span>
-                </div>
-                <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                  <span className="font-semibold text-muted-foreground">Activado por:</span>
-                  <span className="col-span-2">{item.activeBy || "N/A"}</span>
-                </div>
-                <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                  <span className="font-semibold text-muted-foreground">Operador:</span>
-                  <span className="col-span-2">{item.operator?.name || "N/A"}</span>
-                </div>
-                <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                  <span className="font-semibold text-muted-foreground">Hora Activación:</span>
-                  <span className="col-span-2">{formatDate(item.activationTime)}</span>
-                </div>
-
-                {/* Specific Fields */}
-                {codeType === "GREEN" && (
-                  <>
-                    <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                      <span className="font-semibold text-muted-foreground">Evento:</span>
-                      <span className="col-span-2">{item.event || "N/A"}</span>
-                    </div>
-                    <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                      <span className="font-semibold text-muted-foreground">Carabineros:</span>
-                      <span className="col-span-2">{item.police ? "Sí" : "No"}</span>
-                    </div>
-                    <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                      <span className="font-semibold text-muted-foreground">Estado:</span>
-                      <span className="col-span-2">
-                        {isClosed
-                          ? `Finalizado por ${item.closedBy || "Anónimo"} (${formatDate(item.closedAt)})`
-                          : "En curso / Activo"}
-                      </span>
-                    </div>
-                    {isClosed && (
-                      <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                        <span className="font-semibold text-muted-foreground">Cierre registrado por:</span>
-                        <span className="col-span-2">{item.closedByOperator?.name || "N/A"}</span>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {codeType === "BLUE" && (
-                  <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                    <span className="font-semibold text-muted-foreground">Equipos Médicos:</span>
-                    <span className="col-span-2">{formatBlueTeams(item.teams)}</span>
-                  </div>
-                )}
-
-                {codeType === "AIR" && (
-                  <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                    <span className="font-semibold text-muted-foreground">Detalle Emergencia:</span>
-                    <span className="col-span-2">{item.emergencyDetail || "N/A"}</span>
-                  </div>
-                )}
-
-                {codeType === "RED" && (
-                  <>
-                    <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                      <span className="font-semibold text-muted-foreground">COGRID:</span>
-                      <span className="col-span-2">{item.cogridNotified ? "Sí" : "No"}</span>
-                    </div>
-                    {item.cogridNotified && (
-                      <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                        <span className="font-semibold text-muted-foreground">Hora COGRID:</span>
-                        <span className="col-span-2">{formatDate(item.cogridNotifiedAt)}</span>
-                      </div>
-                    )}
-                    <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                      <span className="font-semibold text-muted-foreground">Bomberos:</span>
-                      <span className="col-span-2">
-                        {item.firefighterCalledTime ? formatDate(item.firefighterCalledTime) : "N/A"}
-                      </span>
-                    </div>
-                  </>
-                )}
-
-                {codeType === "LEAK" && (
-                  <>
-                    <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                      <span className="font-semibold text-muted-foreground">Paciente:</span>
-                      <span className="col-span-2">{item.patientName || "N/A"}</span>
-                    </div>
-                    <div className="grid grid-cols-3 items-center gap-2 border-b pb-2">
-                      <span className="font-semibold text-muted-foreground">Descripción:</span>
-                      <span className="col-span-2">{item.patientDescription || "N/A"}</span>
-                    </div>
-                  </>
-                )}
-
-                {item.observations && (
-                  <div className="grid grid-cols-3 items-start gap-2 pt-1">
-                    <span className="font-semibold text-muted-foreground">Observaciones:</span>
-                    <span className="col-span-2 text-muted-foreground italic">
-                      {item.observations}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          {/* EDIT */}
-          <Dialog>
-            <DialogTrigger asChild>
+          <DropdownMenuItem onSelect={() => setDetailsOpen(true)}>
+            <EyeIcon className="mr-2 h-4 w-4" /> Ver detalles
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={isClosed} onSelect={() => setEditOpen(true)}>
+            <SquarePenIcon className="mr-2 h-4 w-4" /> Editar
+          </DropdownMenuItem>
+          {canClose && (
+            <>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
-                onSelect={(e) => e.preventDefault()}
-                disabled={isClosed}
+                onSelect={() => setCloseOpen(true)}
+                className="text-amber-600 focus:text-amber-600 dark:text-amber-500"
               >
-                <SquarePenIcon className="mr-2 h-4 w-4" /> Editar
+                <Lock className="mr-2 h-4 w-4 text-amber-600" /> Finalizar
               </DropdownMenuItem>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Editar Código de Emergencia</DialogTitle>
-                <DialogDescription>
-                  Modifique los parámetros del evento seleccionado.
-                </DialogDescription>
-              </DialogHeader>
-              <EmergencyCodeForm type={codeType} initialData={item} />
-            </DialogContent>
-          </Dialog>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {canClose && (
+        <CloseCodeModal item={item} open={closeOpen} onOpenChange={setCloseOpen} />
+      )}
+
+      {/* VIEW DETAILS */}
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalles del Código {codeType}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-3 py-3 text-sm">
+            <DetailRow label="ID:" valueClassName="font-mono text-xs truncate">
+              {item.id}
+            </DetailRow>
+            <DetailRow label="Ubicación:" valueClassName="font-medium">
+              {item.location}
+            </DetailRow>
+            <DetailRow label="Activado por:">{item.activeBy || "N/A"}</DetailRow>
+            <DetailRow label="Operador:">{item.operator?.name || "N/A"}</DetailRow>
+            <DetailRow label="Hora Activación:">{formatDate(item.activationTime)}</DetailRow>
+
+            {/* Specific Fields */}
+            {codeType === "GREEN" && (
+              <>
+                <DetailRow label="Evento:">{item.event || "N/A"}</DetailRow>
+                <DetailRow label="Carabineros:">{item.police ? "Sí" : "No"}</DetailRow>
+                <DetailRow label="Estado:">
+                  {isClosed
+                    ? `Finalizado por ${item.closedBy || "Anónimo"} (${formatDate(item.closedAt)})`
+                    : "En curso / Activo"}
+                </DetailRow>
+                {isClosed && (
+                  <DetailRow label="Cierre registrado por:">
+                    {item.closedByOperator?.name || "N/A"}
+                  </DetailRow>
+                )}
+              </>
+            )}
+
+            {codeType === "BLUE" && (
+              <DetailRow label="Equipos Médicos:">{formatBlueTeams(item.teams)}</DetailRow>
+            )}
+
+            {codeType === "AIR" && (
+              <DetailRow label="Detalle Emergencia:">{item.emergencyDetail || "N/A"}</DetailRow>
+            )}
+
+            {codeType === "RED" && (
+              <>
+                <DetailRow label="COGRID:">{item.cogridNotified ? "Sí" : "No"}</DetailRow>
+                {item.cogridNotified && (
+                  <DetailRow label="Hora COGRID:">{formatDate(item.cogridNotifiedAt)}</DetailRow>
+                )}
+                <DetailRow label="Bomberos:">
+                  {item.firefighterCalledTime ? formatDate(item.firefighterCalledTime) : "N/A"}
+                </DetailRow>
+              </>
+            )}
+
+            {codeType === "LEAK" && (
+              <>
+                <DetailRow label="Paciente:">{item.patientName || "N/A"}</DetailRow>
+                <DetailRow label="Descripción:">{item.patientDescription || "N/A"}</DetailRow>
+              </>
+            )}
+
+            {item.observations && (
+              <div className="grid grid-cols-3 items-start gap-2 pt-1">
+                <span className="font-semibold text-muted-foreground">Observaciones:</span>
+                <span className="col-span-2 break-words text-muted-foreground italic">
+                  {item.observations}
+                </span>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* EDIT */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Código de Emergencia</DialogTitle>
+            <DialogDescription>
+              Modifique los parámetros del evento seleccionado.
+            </DialogDescription>
+          </DialogHeader>
+          <EmergencyCodeForm
+            type={codeType}
+            initialData={item}
+            onSuccess={() => setEditOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -240,11 +237,12 @@ export const codeBlueColumns: ColumnDef<EmergencyCode>[] = [
   {
     accessorKey: "location",
     header: "Ubicación",
-    cell: ({ row }) => <div className="text-wrap">{row.original.location}</div>,
+    cell: ({ row }) => <TruncatedText>{row.original.location}</TruncatedText>,
   },
   {
     accessorKey: "activeBy",
     header: "Activado por",
+    cell: ({ row }) => <TruncatedText>{row.original.activeBy}</TruncatedText>,
   },
   {
     accessorKey: "Acciones",
@@ -263,8 +261,16 @@ export const codeGreenColumns: ColumnDef<EmergencyCode>[] = [
       </span>
     ),
   },
-  { accessorKey: "location", header: "Ubicación" },
-  { accessorKey: "event", header: "Evento" },
+  {
+    accessorKey: "location",
+    header: "Ubicación",
+    cell: ({ row }) => <TruncatedText>{row.original.location}</TruncatedText>,
+  },
+  {
+    accessorKey: "event",
+    header: "Evento",
+    cell: ({ row }) => <TruncatedText>{row.original.event}</TruncatedText>,
+  },
   {
     accessorKey: "police",
     header: "Carabineros",
@@ -359,7 +365,7 @@ export const codeRedColumns: ColumnDef<EmergencyCode>[] = [
   {
     accessorKey: "location",
     header: "Ubicación",
-    cell: ({ row }) => <div className="text-wrap">{row.original.location}</div>,
+    cell: ({ row }) => <TruncatedText>{row.original.location}</TruncatedText>,
   },
   {
     accessorKey: "Acciones",
@@ -381,18 +387,19 @@ export const codeAirColumns: ColumnDef<EmergencyCode>[] = [
   {
     accessorKey: "location",
     header: "Ubicación",
-    cell: ({ row }) => <div className="text-wrap">{row.original.location}</div>,
+    cell: ({ row }) => <TruncatedText>{row.original.location}</TruncatedText>,
   },
   {
     accessorKey: "emergencyDetail",
     header: "Detalle Emergencia",
     cell: ({ row }) => (
-      <div className="text-wrap max-w-xs">{row.original.emergencyDetail || "N/A"}</div>
+      <TruncatedText>{row.original.emergencyDetail}</TruncatedText>
     ),
   },
   {
     accessorKey: "activeBy",
     header: "Activado por",
+    cell: ({ row }) => <TruncatedText>{row.original.activeBy}</TruncatedText>,
   },
   {
     accessorKey: "Acciones",
@@ -414,18 +421,18 @@ export const codeLeakColumns: ColumnDef<EmergencyCode>[] = [
   {
     accessorKey: "patientName",
     header: "Paciente",
-    cell: ({ row }) => <span>{row.original.patientName || "N/A"}</span>,
+    cell: ({ row }) => <TruncatedText>{row.original.patientName}</TruncatedText>,
   },
   {
     accessorKey: "location",
     header: "Ubicación",
-    cell: ({ row }) => <div className="text-wrap">{row.original.location}</div>,
+    cell: ({ row }) => <TruncatedText>{row.original.location}</TruncatedText>,
   },
   {
     accessorKey: "patientDescription",
     header: "Descripción",
     cell: ({ row }) => (
-      <div className="text-wrap max-w-xs">{row.original.patientDescription || "N/A"}</div>
+      <TruncatedText>{row.original.patientDescription}</TruncatedText>
     ),
   },
   {

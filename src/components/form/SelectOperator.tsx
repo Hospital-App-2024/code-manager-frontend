@@ -38,7 +38,7 @@ export const SelectOperator = ({ onValueChange, value, name }: Props) => {
       <FormLabel>Operador</FormLabel>
       <Select name={name} onValueChange={onValueChange} value={value}>
         <FormControl>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Selecciona un operador" />
           </SelectTrigger>
         </FormControl>

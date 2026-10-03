@@ -92,7 +92,7 @@ export const UserForm = () => {
                 onValueChange={(value) => field.onChange(value)}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecciona una opción" />
                   </SelectTrigger>
                 </FormControl>

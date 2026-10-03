@@ -247,7 +247,7 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
               Complete los datos del reporte inicial y la ubicación del evento.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 items-start gap-5">
             {/* FECHA Y HORA MANUAL */}
             <FormField
               control={form.control}
@@ -256,13 +256,13 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
                 <FormItem>
                   <FormLabel className="flex items-center gap-1.5 font-medium">
                     <CalendarClock className="w-3.5 h-3.5 text-muted-foreground" />
-                    Fecha y Hora de Activación (Manual)
+                    Fecha y Hora de Activación
                   </FormLabel>
                   <FormControl>
                     <Input type="datetime-local" {...field} />
                   </FormControl>
                   <FormDescription className="text-xs">
-                    Hora precisa en que se reportó la alerta.
+                    Ingrese manualmente la hora precisa en que se reportó la alerta.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -354,7 +354,7 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
           <CardContent className="space-y-4">
             {/* CÓDIGO VERDE */}
             {type === "GREEN" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-5">
                 <FormField
                   control={form.control}
                   name="event"
@@ -471,7 +471,7 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
 
             {/* CÓDIGO ROJO */}
             {type === "RED" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-5">
                 <FormField
                   control={form.control}
                   name="firefighterCalledTime"
@@ -541,7 +541,7 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
 
             {/* CÓDIGO FUGA */}
             {type === "LEAK" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-5">
                 <FormField
                   control={form.control}
                   name="patientName"
@@ -615,7 +615,7 @@ export function EmergencyCodeForm({ type, initialData, onSuccess }: Props) {
                 />
 
                 {form.watch("closeCode") && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-4 pt-2">
                     <FormField
                       control={form.control}
                       name="closedBy"

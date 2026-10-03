@@ -1,6 +1,5 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { MainSidebar } from "@/app/(code)/components/MainSidebar";
-import { ScrollArea } from "@/components/ui/scroll-area"
 import Header from "./components/Header";
 
 export default async function CodeLayout({
@@ -11,13 +10,13 @@ export default async function CodeLayout({
   return (
     <SidebarProvider className="h-screen w-full">
       <MainSidebar />
-      <SidebarInset>
+      {/* min-w-0 deja que el contenido se encoja en vez de ensanchar la página:
+          las tablas anchas se desplazan dentro de su propio contenedor. */}
+      <SidebarInset className="min-w-0">
         <Header />
-        <main className="w-full mt-6 px-4">
-          <ScrollArea className="h-full">
-            {children}
-          </ScrollArea>
-        </main>
+        <div className="min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden px-4 pt-6 pb-10">
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

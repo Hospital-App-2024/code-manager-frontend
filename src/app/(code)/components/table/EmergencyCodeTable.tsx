@@ -49,10 +49,10 @@ export default function EmergencyCodeTable({ type, limit, page, from, to }: Prop
         data={data?.data || []} 
         isLoading={isLoading || isFetching} 
       />
-      <Pagination 
-        currentPage={page} 
-        totalPages={data?.meta?.lastPage || 1} 
-      /> 
+      <Pagination
+        currentPage={data?.meta?.currentPage ?? page}
+        totalPages={data?.meta?.totalPages ?? 1}
+      />
     </>
   );
 }

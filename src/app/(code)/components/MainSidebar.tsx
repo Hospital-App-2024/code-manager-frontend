@@ -5,7 +5,6 @@ import { IoShieldOutline } from "react-icons/io5";
 import { FaFire } from "react-icons/fa";
 import { FaHelicopter } from "react-icons/fa";
 import { FaRunning } from "react-icons/fa";
-import { GiMovementSensor } from "react-icons/gi";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
 import { LogoutButton } from "./LogoutButton";
@@ -52,11 +51,6 @@ const menuItems = [
     path: "/code-leak",
     title: "Código Fuga",
     icon: <FaRunning className={`text-yellow-600`} />,
-  },
-  {
-    path: "/fire-alarms",
-    title: "Alarmas de Incendio",
-    icon: <GiMovementSensor className={`text-indigo-600`} />,
   },
 ];
 
