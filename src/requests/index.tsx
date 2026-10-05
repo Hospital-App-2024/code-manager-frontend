@@ -11,7 +11,8 @@ export interface QueryParams {
   type?: CodeType;
 }
 
-const base_url = process.env.NEXT_PUBLIC_URL_BACKEND;
+// Mismo origen: src/app/api/backend reenvía al backend usando URL_BACKEND en el servidor.
+const base_url = "/api/backend";
 const endpoint = `${base_url}/emergency-codes`;
 
 export const buildUrlWithParams = (baseUrl: string, searchParams?: unknown) => {

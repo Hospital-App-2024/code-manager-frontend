@@ -22,7 +22,7 @@ export const getEmergencyCodes = async ({
 
   const session = await auth();
 
-  let url = `${process.env.NEXT_PUBLIC_URL_BACKEND || process.env.URL_BACKEND}/emergency-codes?`;
+  let url = `${process.env.URL_BACKEND}/emergency-codes?`;
 
   const params = new URLSearchParams();
   if (from) params.append("from", from);

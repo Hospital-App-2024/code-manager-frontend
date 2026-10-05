@@ -22,10 +22,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# NEXT_PUBLIC_* variables are inlined into the browser bundle at build time,
-# so the public backend URL must be known here, not only at runtime.
-ARG NEXT_PUBLIC_URL_BACKEND
-ENV NEXT_PUBLIC_URL_BACKEND=$NEXT_PUBLIC_URL_BACKEND
+# The backend URL is not needed at build time: the browser calls /api/backend and the
+# Next server forwards to URL_BACKEND at runtime.
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN pnpm run build

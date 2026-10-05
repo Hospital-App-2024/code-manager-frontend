@@ -5,7 +5,7 @@ import { CodeType } from "@/interfaces/emergencyCode.interface";
 export const getEmergencyCodeTotalByMonth = async (type?: CodeType) => {
   const session = await auth();
   
-  let url = `${process.env.NEXT_PUBLIC_URL_BACKEND || process.env.URL_BACKEND}/emergency-codes/total-by-month`;
+  let url = `${process.env.URL_BACKEND}/emergency-codes/total-by-month`;
   if (type) {
     url += `?type=${type}`;
   }
