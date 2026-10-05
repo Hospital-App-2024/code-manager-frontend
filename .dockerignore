@@ -1,7 +1,11 @@
-Dockerfile
+dockerfile
 .dockerignore
 node_modules
 npm-debug.log
 README.md
 .next
 .git
+# Local env points to localhost; production values come from docker-compose.
+.env
+.env.*
+tsconfig.tsbuildinfo
